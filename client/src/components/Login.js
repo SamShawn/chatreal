@@ -67,7 +67,7 @@ function Login({ onLogin }) {
               marginBottom: 'var(--spacing-md)'
             }}
           />
-          <h1 className="login-title">Chat Pulse</h1>
+          <h1 className="login-title">ChatReal</h1>
           <p className="login-subtitle">实时协作聊天室</p>
         </div>
 

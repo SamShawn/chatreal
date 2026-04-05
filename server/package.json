@@ -1,5 +1,5 @@
 {
-  "name": "chat-pulse-server",
+  "name": "chatreal-server",
   "version": "1.0.0",
   "description": "实时协作聊天室后端服务",
   "main": "server.js",

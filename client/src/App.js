@@ -18,13 +18,13 @@ function App() {
    */
   useEffect(() => {
     // 检查是否有保存的用户会话（可选）
-    const savedUser = localStorage.getItem('chatPulseUser');
+    const savedUser = localStorage.getItem('chatRealUser');
     if (savedUser) {
       try {
         const userData = JSON.parse(savedUser);
         setUser(userData);
       } catch (e) {
-        localStorage.removeItem('chatPulseUser');
+        localStorage.removeItem('chatRealUser');
       }
     }
     setIsInitialized(true);
@@ -42,7 +42,7 @@ function App() {
     };
 
     // 保存用户会话
-    localStorage.setItem('chatPulseUser', JSON.stringify(userData));
+    localStorage.setItem('chatRealUser', JSON.stringify(userData));
     setUser(userData);
 
     return userData;
@@ -56,7 +56,7 @@ function App() {
     socketService.disconnect();
 
     // 清除用户会话
-    localStorage.removeItem('chatPulseUser');
+    localStorage.removeItem('chatRealUser');
     setUser(null);
   };
 

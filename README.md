@@ -1,4 +1,4 @@
-# Chat Pulse - 实时协作聊天室
+# ChatReal - 实时协作聊天室
 
 一个功能完整的实时协作聊天应用，使用 WebSocket 实现多用户在线实时收发消息。
 
@@ -35,7 +35,7 @@
 ## 项目结构
 
 ```
-chat-pulse/
+chatreal/
 ├── server/                 # 后端服务
 │   ├── routes/            # 路由
 │   ├── socket/            # Socket 处理
@@ -324,7 +324,7 @@ MIT License
 
 ## 作者
 
-Chat Pulse Team
+ChatReal Team
 
 ---
 

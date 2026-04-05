@@ -24,7 +24,7 @@ npm start
 ```
 ╔════════════════════════════════════════════════════════════╗
 ║                                                            ║
-║         🚀 Chat Pulse Server Started Successfully!       ║
+║         🚀 ChatReal Server Started Successfully!       ║
 ║                                                            ║
 ║         📍 Server running on: http://localhost:3001         ║
 ║         🔌 WebSocket ready on: ws://localhost:3001         ║

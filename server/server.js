@@ -120,7 +120,7 @@ async function initialize() {
       console.log(`
 ╔════════════════════════════════════════════════════════════╗
 ║                                                            ║
-║         🚀 Chat Pulse Server Started Successfully!       ║
+║         🚀 ChatReal Server Started Successfully!       ║
 ║                                                            ║
 ║         📍 Server running on: http://localhost:${PORT}         ║
 ║         🔌 WebSocket ready on: ws://localhost:${PORT}         ║

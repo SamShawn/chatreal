@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 Chat Pulse - 实时协作聊天室"
+echo "🚀 ChatReal - 实时协作聊天室"
 echo "================================"
 echo ""
 
