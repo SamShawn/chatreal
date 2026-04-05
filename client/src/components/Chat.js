@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Send, Search, X, Menu, Users, Upload } from 'lucide-react';
 import MessageList from './MessageList';
 import socketService from '../services/socket';
-import { debounce, isImageFile, validateFileSize } from '../utils/format';
+import { isImageFile, validateFileSize } from '../utils/format';
 import '../styles/App.css';
 
 // 默认房间ID
@@ -25,9 +25,15 @@ function Chat({ user }) {
   const [error, setError] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // 防抖后的搜索函数
-  const debouncedSearch = useCallback(
-    debounce((query) => {
+  // 防抖后的搜索函数 - 使用 useRef 实现真正的防抖，避免 ESLint 警告
+  const searchTimeoutRef = useRef(null);
+
+  const debouncedSearch = useCallback((query) => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    searchTimeoutRef.current = setTimeout(() => {
       if (query.trim()) {
         socketService.emit('message:search', {
           roomId: DEFAULT_ROOM,
@@ -38,9 +44,8 @@ function Chat({ user }) {
         setShowSearchResults(false);
         setSearchResults([]);
       }
-    }, 300),
-    []
-  );
+    }, 300);
+  }, []);
 
   /**
    * 处理登录连接
