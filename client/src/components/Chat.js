@@ -58,18 +58,18 @@ function Chat({ user }) {
     socketService.on('socket:connected', () => {
       setIsConnected(true);
       console.log('Socket connected');
+
+      // 连接成功后发送用户加入事件
+      socketService.emit('user:join', {
+        username: user.username,
+        avatar: user.avatar,
+      });
     });
 
     // 监听断开连接
     socketService.on('socket:disconnected', () => {
       setIsConnected(false);
       setError('连接已断开');
-    });
-
-    // 发送用户加入事件
-    socketService.emit('user:join', {
-      username: user.username,
-      avatar: user.avatar,
     });
 
     // 监听加入成功
