@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import { formatTime, isImageFile, formatFileSize } from '../utils/format';
+import { formatTime, formatFileSize } from '../utils/format';
 import { File as FileIcon, Download } from 'lucide-react';
-import './styles/App.css';
+import '../styles/App.css';
 
 /**
  * 消息列表组件

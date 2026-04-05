@@ -3,7 +3,7 @@ import { Send, Search, X, Menu, Users, Upload } from 'lucide-react';
 import MessageList from './MessageList';
 import socketService from '../services/socket';
 import { debounce, isImageFile, validateFileSize } from '../utils/format';
-import './styles/App.css';
+import '../styles/App.css';
 
 // 默认房间ID
 const DEFAULT_ROOM = 'general';
@@ -47,7 +47,7 @@ function Chat({ user }) {
    */
   useEffect(() => {
     // 连接 Socket
-    const socket = socketService.connect();
+    socketService.connect();
 
     // 监听连接成功
     socketService.on('socket:connected', () => {

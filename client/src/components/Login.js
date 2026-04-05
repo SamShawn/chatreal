@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MessageCircle, User as UserIcon } from 'lucide-react';
-import './styles/App.css';
+import '../styles/App.css';
 
 /**
  * 登录组件
