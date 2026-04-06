@@ -18,7 +18,7 @@ const server = http.createServer(app);
 // 解析 CORS origins - 支持多个地址（逗号分隔）
 const getCorsOrigins = () => {
   const envOrigins = process.env.CLIENT_URL;
-  if (!envOrigins) return 'http://localhost:3000';
+  if (!envOrigins) return 'http://localhost:5173'
 
   // 支持逗号分隔的多个地址
   const origins = envOrigins.split(',').map(o => o.trim());
@@ -132,17 +132,17 @@ async function initialize() {
       console.log(`
 ╔════════════════════════════════════════════════════════════╗
 ║                                                            ║
-║         🚀 ChatReal Server Started Successfully!       ║
+║         🚀 ChatReal Server Started Successfully!           ║
 ║                                                            ║
-║         📍 Server running on: http://localhost:${PORT}         ║
+║         📍 Server running on: http://localhost:${PORT}        ║
 ║         🔌 WebSocket ready on: ws://localhost:${PORT}         ║
 ║                                                            ║
-║         📝 Features:                                      ║
-║            • Real-time chat via WebSocket                ║
-║            • Redis message persistence                   ║
-║            • User presence tracking                      ║
-║            • File upload support                         ║
-║            • Message search                              ║
+║         📝 Features:                                       ║
+║            • Real-time chat via WebSocket                  ║
+║            • Redis message persistence                     ║
+║            • User presence tracking                        ║
+║            • File upload support                           ║
+║            • Message search                                ║
 ║                                                            ║
 ╚════════════════════════════════════════════════════════════╝
       `);

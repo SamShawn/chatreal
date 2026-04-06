@@ -112,7 +112,7 @@ PORT=3001
 REDIS_HOST=localhost
 REDIS_PORT=6379
 REDIS_PASSWORD=
-CLIENT_URL=http://localhost:3000
+CLIENT_URL=http://localhost:5173
 MAX_FILE_SIZE=10485760
 UPLOAD_DIR=./uploads
 ```
@@ -141,7 +141,7 @@ npm start
 
 ### 5. 访问应用
 
-打开浏览器访问: http://localhost:3000
+打开浏览器访问: http://localhost:5173
 
 ## 使用说明
 

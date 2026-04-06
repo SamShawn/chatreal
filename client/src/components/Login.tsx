@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import { useState, type FormEvent, type ChangeEvent } from 'react';
 import { MessageCircle, User as UserIcon } from 'lucide-react';
 import '../styles/App.css';
+import type { LoginProps } from '../types';
 
 /**
  * 登录组件
  * 允许用户输入用户名加入聊天室
  */
-function Login({ onLogin }) {
+function Login({ onLogin }: LoginProps) {
   const [username, setUsername] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -14,7 +15,7 @@ function Login({ onLogin }) {
   /**
    * 处理登录提交
    */
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -39,9 +40,8 @@ function Login({ onLogin }) {
     try {
       // 调用父组件的登录回调
       await onLogin(username.trim());
-    } catch (err) {
+    } catch {
       setError('登录失败，请重试');
-      console.error('Login error:', err);
     } finally {
       setIsLoading(false);
     }
@@ -50,66 +50,57 @@ function Login({ onLogin }) {
   /**
    * 处理输入变化
    */
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setUsername(e.target.value);
     setError('');
   };
 
   return (
-    <div className="login-page">
-      <div className="login-card">
-        <div className="login-header">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-200 p-4">
+      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+        <div className="text-center mb-8">
           <MessageCircle
             size={48}
-            className="login-icon"
-            style={{
-              color: 'var(--primary-color)',
-              marginBottom: 'var(--spacing-md)'
-            }}
+            className="mx-auto mb-4"
+            style={{ color: 'var(--primary-color)' }}
           />
-          <h1 className="login-title">ChatReal</h1>
-          <p className="login-subtitle">实时协作聊天室</p>
+          <h1 className="text-2xl font-bold text-gray-800">ChatReal</h1>
+          <p className="text-gray-500 mt-1">实时协作聊天室</p>
         </div>
 
-        <form className="login-form" onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="username" style={{ display: 'none' }}>
+            <label htmlFor="username" className="sr-only">
               用户名
             </label>
-            <div style={{ position: 'relative' }}>
+            <div className="relative">
               <UserIcon
                 size={20}
-                style={{
-                  position: 'absolute',
-                  left: 'var(--spacing-md)',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: 'var(--text-muted)'
-                }}
+                className="absolute left-4 top-1/2 -translate-y-1/2"
+                style={{ color: 'var(--text-muted)' }}
               />
               <input
                 id="username"
                 type="text"
-                className="login-input"
+                className="input w-full pl-12"
                 placeholder="请输入用户名"
                 value={username}
                 onChange={handleChange}
                 disabled={isLoading}
-                style={{ paddingLeft: '48px' }}
                 autoFocus
               />
             </div>
           </div>
 
           {error && (
-            <p className="error-message" style={{ textAlign: 'center' }}>
+            <p className="text-red-500 text-sm text-center mt-2">
               {error}
             </p>
           )}
 
           <button
             type="submit"
-            className="btn btn-primary login-btn"
+            className="btn btn-primary w-full mt-6"
             disabled={isLoading}
           >
             {isLoading ? '加入中...' : '加入聊天'}

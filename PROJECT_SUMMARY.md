@@ -189,7 +189,7 @@ cd client && npm start
    ```
 
 5. **访问应用**
-   - 打开浏览器: http://localhost:3000
+   - 打开浏览器: http://localhost:5173
 
 ---
 
@@ -271,7 +271,7 @@ PORT=3001                    # 服务器端口
 REDIS_HOST=localhost          # Redis 主机
 REDIS_PORT=6379             # Redis 端口
 REDIS_PASSWORD=              # Redis 密码
-CLIENT_URL=http://localhost:3000  # 前端 URL
+CLIENT_URL=http://localhost:5173  # 前端 URL
 MAX_FILE_SIZE=10485760       # 最大文件大小（10MB）
 UPLOAD_DIR=./uploads         # 上传目录
 ```

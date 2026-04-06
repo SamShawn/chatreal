@@ -1,9 +1,15 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, type FormEvent, type ChangeEvent, type KeyboardEvent } from 'react';
 import { Send, Search, X, Menu, Users, Upload } from 'lucide-react';
 import MessageList from './MessageList';
 import socketService from '../services/socket';
+import { useChatStore } from '../store/chatStore';
 import { isImageFile, validateFileSize } from '../utils/format';
-import '../styles/App.css';
+import type { User, Message } from '../types';
+
+interface ChatProps {
+  user: User;
+  onLogout: () => void;
+}
 
 // 默认房间ID
 const DEFAULT_ROOM = 'general';
@@ -12,23 +18,37 @@ const DEFAULT_ROOM = 'general';
  * 聊天主组件
  * 处理实时聊天、消息发送、文件上传等功能
  */
-function Chat({ user }) {
-  // 状态管理
-  const [messages, setMessages] = useState([]);
+function Chat({ user }: ChatProps) {
+  // 使用 Zustand store
+  const {
+    messages,
+    onlineUsers,
+    isConnected,
+    isLoading,
+    error,
+    searchQuery,
+    searchResults,
+    showSearchResults,
+    addMessage,
+    setMessages,
+    setOnlineUsers,
+    setConnected,
+    setLoading,
+    setError,
+    setSearchResults,
+    setSearchQuery,
+    setShowSearchResults,
+  } = useChatStore();
+
+  // 组件本地状态
   const [inputValue, setInputValue] = useState('');
-  const [onlineUsers, setOnlineUsers] = useState([]);
-  const [isConnected, setIsConnected] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showSearchResults, setShowSearchResults] = useState(false);
-  const [searchResults, setSearchResults] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // 防抖后的搜索函数 - 使用 useRef 实现真正的防抖，避免 ESLint 警告
-  const searchTimeoutRef = useRef(null);
+  // 防抖后的搜索函数 - 使用 useRef 实现真正的防抖
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const debouncedSearch = useCallback((query) => {
+  const debouncedSearch = useCallback((query: string) => {
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
@@ -45,48 +65,35 @@ function Chat({ user }) {
         setSearchResults([]);
       }
     }, 300);
-  }, []);
+  }, [setShowSearchResults, setSearchResults]);
 
   /**
    * 处理登录连接
    */
   useEffect(() => {
-    console.log('[Chat] useEffect triggered, connecting...');
-
     // 连接 Socket
-    const socket = socketService.connect();
-    console.log('[Chat] socketService.connect() returned:', socket?.id);
+    socketService.connect(user.id);
 
     // 监听连接成功
     socketService.on('socket:connected', () => {
-      setIsConnected(true);
-      console.log('[Chat] socket:connected event fired!');
-
-      // 连接成功后发送用户加入事件
-      const emitData = {
+      setConnected(true);
+      socketService.emit('user:join', {
         username: user.username,
         avatar: user.avatar,
-      };
-      console.log('[Chat] Emitting user:join with:', emitData);
-      socketService.emit('user:join', emitData);
-    });
-
-    // 调试：监听所有错误
-    socketService.on('error', (data) => {
-      console.error('[Chat] Error received:', data);
+      });
     });
 
     // 监听断开连接
     socketService.on('socket:disconnected', () => {
-      setIsConnected(false);
+      setConnected(false);
       setError('连接已断开');
     });
 
     // 监听加入成功
-    socketService.on('user:join:success', (data) => {
-      setIsLoading(false);
-      setOnlineUsers(data.onlineUsers || []);
-      console.log('User joined successfully');
+    socketService.on('user:join:success', (data: unknown) => {
+      const response = data as { onlineUsers: User[] };
+      setLoading(false);
+      setOnlineUsers(response.onlineUsers || []);
 
       // 加入默认房间
       socketService.emit('room:join', { roomId: DEFAULT_ROOM });
@@ -99,29 +106,30 @@ function Chat({ user }) {
     });
 
     // 监听其他用户加入
-    socketService.on('user:joined', (data) => {
-      setOnlineUsers(data.onlineUsers || []);
+    socketService.on('user:joined', (data: unknown) => {
+      const response = data as { onlineUsers: User[]; username: string };
+      setOnlineUsers(response.onlineUsers || []);
 
       // 添加系统消息
-      setMessages(prev => [
-        ...prev,
-        {
-          id: `system-${Date.now()}`,
-          type: 'system',
-          content: `${data.username} 加入了聊天`,
-          timestamp: Date.now(),
-        }
-      ]);
+      addMessage({
+        id: `system-${Date.now()}`,
+        type: 'system',
+        content: `${response.username} 加入了聊天`,
+        sender: { id: 'system', username: '系统', avatar: '' },
+        timestamp: Date.now(),
+      });
     });
 
     // 监听用户离开
-    socketService.on('user:left', (data) => {
-      setOnlineUsers(data.onlineUsers || []);
+    socketService.on('user:left', (data: unknown) => {
+      const response = data as { onlineUsers: User[] };
+      setOnlineUsers(response.onlineUsers || []);
     });
 
     // 监听新消息
-    socketService.on('message:new', (message) => {
-      setMessages(prev => [...prev, message]);
+    socketService.on('message:new', (data: unknown) => {
+      const message = data as Message;
+      addMessage(message);
 
       // 如果正在显示搜索结果，重新搜索以包含新消息
       if (showSearchResults && searchQuery.trim()) {
@@ -130,33 +138,29 @@ function Chat({ user }) {
     });
 
     // 监听历史消息
-    socketService.on('room:history:result', (data) => {
-      setMessages(data.messages || []);
-      setIsLoading(false);
+    socketService.on('room:history:result', (data: unknown) => {
+      const response = data as { messages: Message[] };
+      setMessages(response.messages || []);
+      setLoading(false);
     });
 
     // 监听搜索结果
-    socketService.on('message:search:result', (data) => {
-      setSearchResults(data.messages || []);
-    });
-
-    // 监听房间加入成功
-    socketService.on('room:join:success', (data) => {
-      console.log('Joined room:', data.roomId);
+    socketService.on('message:search:result', (data: unknown) => {
+      const response = data as { messages: Message[] };
+      setSearchResults(response.messages || []);
     });
 
     // 监听错误
-    socketService.on('socket:error', (errorData) => {
+    socketService.on('socket:error', (data: unknown) => {
+      const errorData = data as { message?: string };
       setError(errorData.message || '发生错误');
-      console.error('Socket error:', errorData);
     });
 
     return () => {
-      // 清理事件监听
       socketService.removeAllListeners();
       socketService.disconnect();
     };
-  }, [user.username, user.avatar, showSearchResults, searchQuery, debouncedSearch]);
+  }, [user.id, user.username, user.avatar, showSearchResults, searchQuery, debouncedSearch, setConnected, setLoading, setOnlineUsers, setError, addMessage, setMessages, setSearchResults]);
 
   /**
    * 处理消息发送
@@ -177,22 +181,22 @@ function Chat({ user }) {
   /**
    * 处理文件上传
    */
-  const handleFileUpload = async (file) => {
+  const handleFileUpload = async (file: File) => {
     // 验证文件大小
     if (!validateFileSize(file.size, 10 * 1024 * 1024)) {
       setError('文件大小不能超过10MB');
       return;
     }
 
+    const serverUrl = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001';
+
     try {
       const formData = new FormData();
       formData.append('file', file);
 
-      // 使用 fetch 上传文件
-      const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/upload`, {
+      const response = await fetch(`${serverUrl}/api/upload`, {
         method: 'POST',
         headers: {
-          'Content-Type': file.type,
           'X-File-Name': file.name,
         },
         body: file,
@@ -202,7 +206,7 @@ function Chat({ user }) {
         throw new Error('上传失败');
       }
 
-      const data = await response.json();
+      const data = await response.json() as { fileUrl: string; fileName: string; fileSize: number };
 
       // 发送文件消息
       const messageType = isImageFile(file.name) ? 'image' : 'file';
@@ -213,16 +217,15 @@ function Chat({ user }) {
         fileName: data.fileName,
         fileSize: data.fileSize,
       });
-    } catch (error) {
+    } catch {
       setError('文件上传失败');
-      console.error('Upload error:', error);
     }
   };
 
   /**
    * 处理文件选择
    */
-  const handleFileSelect = (e) => {
+  const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       handleFileUpload(file);
@@ -234,7 +237,7 @@ function Chat({ user }) {
   /**
    * 处理搜索输入
    */
-  const handleSearchChange = (e) => {
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
     debouncedSearch(value);
@@ -252,7 +255,7 @@ function Chat({ user }) {
   /**
    * 处理输入框回车
    */
-  const handleKeyPress = (e) => {
+  const handleKeyPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
@@ -279,12 +282,11 @@ function Chat({ user }) {
       />
 
       {/* 侧边栏 */}
-      <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
+      <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <button
-            className="btn btn-secondary btn-icon"
+            className="btn btn-secondary btn-icon hidden md:block"
             onClick={() => setIsSidebarOpen(false)}
-            style={{ display: 'none' }} // 仅在移动端显示
           >
             <X size={20} />
           </button>
@@ -299,7 +301,7 @@ function Chat({ user }) {
 
           <div className="user-list">
             {onlineUsers.map((onlineUser) => (
-              <div key={onlineUser.userId} className="user-item">
+              <div key={onlineUser.id} className="user-item">
                 <img
                   src={onlineUser.avatar}
                   alt={onlineUser.username}
@@ -311,22 +313,21 @@ function Chat({ user }) {
             ))}
           </div>
         </div>
-      </div>
+      </aside>
 
       {/* 主聊天区域 */}
-      <div className="chat-main">
+      <main className="chat-main">
         {/* 聊天头部 */}
-        <div className="chat-header">
+        <header className="chat-header">
           <div className="room-info">
             <button
-              className="btn btn-secondary btn-icon"
+              className="btn btn-secondary btn-icon md:hidden"
               onClick={() => setIsSidebarOpen(true)}
-              style={{ display: window.innerWidth <= 768 ? 'flex' : 'none' }}
             >
               <Menu size={20} />
             </button>
             <h3 className="room-name">公共聊天室</h3>
-            <div className="flex gap-sm">
+            <div className="flex gap-2">
               <Users size={18} style={{ color: 'var(--text-muted)' }} />
               <span style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
                 {onlineUsers.length}
@@ -335,22 +336,20 @@ function Chat({ user }) {
           </div>
 
           <div className="chat-actions">
-            <div className="search-box">
-              <Search size={16} className="search-icon" />
+            <div className="search-box relative">
+              <Search size={16} className="search-icon absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                className="search-input"
+                className="search-input pl-9"
                 placeholder="搜索消息..."
                 value={searchQuery}
                 onChange={handleSearchChange}
               />
               {searchQuery && (
                 <button
-                  className="btn btn-icon"
+                  className="btn btn-icon absolute right-1"
                   onClick={clearSearch}
                   style={{
-                    position: 'absolute',
-                    right: '4px',
                     width: 24,
                     height: 24,
                     padding: 0
@@ -361,12 +360,13 @@ function Chat({ user }) {
               )}
             </div>
           </div>
-        </div>
+        </header>
 
         {/* 消息列表 */}
         <MessageList
           messages={displayMessages}
-          currentUserId={user.userId}
+          currentUserId={user.id}
+          messagesEndRef={messagesEndRef}
         />
 
         {/* 输入区域 */}
@@ -377,7 +377,7 @@ function Chat({ user }) {
               placeholder={showSearchResults ? '搜索模式' : '输入消息...'}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyPress={handleKeyPress as unknown as (e: FormEvent<HTMLTextAreaElement>) => void}
               disabled={showSearchResults}
               rows={1}
             />
@@ -410,33 +410,17 @@ function Chat({ user }) {
             </div>
           </div>
         </div>
-      </div>
+      </main>
 
       {/* 错误提示 */}
       {error && (
         <div
-          style={{
-            position: 'fixed',
-            bottom: '20px',
-            right: '20px',
-            background: 'var(--danger-color)',
-            color: 'white',
-            padding: '12px 16px',
-            borderRadius: '8px',
-            zIndex: 1000,
-            animation: 'slideIn 0.3s ease'
-          }}
+          className="fixed bottom-5 right-5 bg-red-500 text-white px-4 py-3 rounded-lg z-[1000] animate-slideIn"
         >
           {error}
           <button
             onClick={() => setError('')}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'white',
-              marginLeft: '8px',
-              cursor: 'pointer'
-            }}
+            className="bg-transparent border-none text-white ml-2 cursor-pointer"
           >
             <X size={16} />
           </button>
@@ -446,17 +430,7 @@ function Chat({ user }) {
       {/* 连接状态指示 */}
       {!isConnected && (
         <div
-          style={{
-            position: 'fixed',
-            top: '20px',
-            right: '20px',
-            background: 'var(--warning-color)',
-            color: 'white',
-            padding: '8px 12px',
-            borderRadius: '6px',
-            fontSize: '12px',
-            zIndex: 1000
-          }}
+          className="fixed top-5 right-5 bg-orange-400 text-white px-3 py-2 rounded-md text-xs z-[1000]"
         >
           连接已断开
         </div>

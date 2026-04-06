@@ -1,14 +1,19 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef, type RefObject } from 'react';
 import { formatTime, formatFileSize } from '../utils/format';
 import { File as FileIcon, Download } from 'lucide-react';
-import '../styles/App.css';
+import type { Message } from '../types';
+
+interface MessageListProps {
+  messages: Message[];
+  currentUserId: string;
+  messagesEndRef: RefObject<HTMLDivElement>;
+}
 
 /**
  * 消息列表组件
  * 显示聊天消息
  */
-function MessageList({ messages, currentUserId }) {
-  const messagesEndRef = useRef(null);
+function MessageList({ messages, currentUserId, messagesEndRef }: MessageListProps) {
   const prevMessagesLengthRef = useRef(0);
 
   /**
@@ -24,7 +29,6 @@ function MessageList({ messages, currentUserId }) {
    * 当有新消息时自动滚动
    */
   useEffect(() => {
-    // 只有当消息数量增加时才自动滚动
     if (messages.length > prevMessagesLengthRef.current) {
       scrollToBottom(true);
     }
@@ -41,7 +45,7 @@ function MessageList({ messages, currentUserId }) {
   /**
    * 渲染文件附件
    */
-  const renderFileAttachment = (message) => {
+  const renderFileAttachment = (message: Message) => {
     if (message.type === 'image' && message.fileUrl) {
       return (
         <img
@@ -68,9 +72,7 @@ function MessageList({ messages, currentUserId }) {
             download={message.fileName}
             target="_blank"
             rel="noopener noreferrer"
-            style={{
-              marginLeft: 'auto',
-            }}
+            className="ml-auto"
           >
             <Download size={18} style={{ color: 'var(--primary-color)' }} />
           </a>
@@ -84,7 +86,7 @@ function MessageList({ messages, currentUserId }) {
   /**
    * 渲染单条消息
    */
-  const renderMessage = (message, index) => {
+  const renderMessage = (message: Message, index: number) => {
     if (message.type === 'system') {
       return (
         <div key={message.id || index} className="system-message">
@@ -93,7 +95,7 @@ function MessageList({ messages, currentUserId }) {
       );
     }
 
-    const isOwn = message.userId === currentUserId;
+    const isOwn = message.sender.id === currentUserId;
 
     return (
       <div key={message.id || index} className="message-group">
@@ -101,8 +103,8 @@ function MessageList({ messages, currentUserId }) {
           {!isOwn && (
             <div className="message-header">
               <img
-                src={message.avatar}
-                alt={message.username}
+                src={message.sender.avatar}
+                alt={message.sender.username}
                 className="user-avatar"
                 style={{
                   width: '24px',
@@ -110,19 +112,14 @@ function MessageList({ messages, currentUserId }) {
                   marginRight: '4px'
                 }}
               />
-              <span className="message-sender">{message.username}</span>
+              <span className="message-sender">{message.sender.username}</span>
             </div>
           )}
           {message.content && <div>{message.content}</div>}
           {renderFileAttachment(message)}
           <div
-            className="message-time"
-            style={{
-              fontSize: '11px',
-              opacity: 0.7,
-              marginTop: '4px',
-              textAlign: isOwn ? 'right' : 'left'
-            }}
+            className="message-time text-[11px] opacity-70 mt-1"
+            style={{ textAlign: isOwn ? 'right' : 'left' }}
           >
             {formatTime(message.timestamp)}
           </div>
@@ -134,20 +131,9 @@ function MessageList({ messages, currentUserId }) {
   return (
     <div className="chat-messages">
       {messages.length === 0 ? (
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '100%',
-            color: 'var(--text-muted)'
-          }}
-        >
+        <div className="h-full flex flex-col items-center justify-center text-[var(--text-muted)]">
           <p>暂无消息</p>
-          <p style={{ fontSize: '13px', marginTop: '8px' }}>
-            发送第一条消息开始聊天吧
-          </p>
+          <p className="text-[13px] mt-2">发送第一条消息开始聊天吧</p>
         </div>
       ) : (
         messages.map((message, index) => renderMessage(message, index))

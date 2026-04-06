@@ -24,9 +24,9 @@ npm start
 ```
 ╔════════════════════════════════════════════════════════════╗
 ║                                                            ║
-║         🚀 ChatReal Server Started Successfully!       ║
+║         🚀 ChatReal Server Started Successfully!           ║
 ║                                                            ║
-║         📍 Server running on: http://localhost:3001         ║
+║         📍 Server running on: http://localhost:3001        ║
 ║         🔌 WebSocket ready on: ws://localhost:3001         ║
 ║                                                            ║
 ╚════════════════════════════════════════════════════════════╝
@@ -40,7 +40,7 @@ cd client
 npm start
 ```
 
-浏览器会自动打开: http://localhost:3000
+浏览器会自动打开: http://localhost:5173
 
 ### 4. 开始聊天！
 
@@ -135,7 +135,7 @@ npm install
 
 ## 📱 访问地址
 
-- 前端应用：http://localhost:3000
+- 前端应用：http://localhost:5173
 - 后端 API：http://localhost:3001
 - 健康检查：http://localhost:3001/health
 
