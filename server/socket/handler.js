@@ -62,6 +62,7 @@ class SocketHandler {
    * 处理用户加入
    */
   async handleUserJoin(socket, data) {
+    console.log('[Socket] handleUserJoin called with data:', data);
     try {
       const { username, avatar } = data;
 

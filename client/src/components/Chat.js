@@ -51,19 +51,29 @@ function Chat({ user }) {
    * 处理登录连接
    */
   useEffect(() => {
+    console.log('[Chat] useEffect triggered, connecting...');
+
     // 连接 Socket
-    socketService.connect();
+    const socket = socketService.connect();
+    console.log('[Chat] socketService.connect() returned:', socket?.id);
 
     // 监听连接成功
     socketService.on('socket:connected', () => {
       setIsConnected(true);
-      console.log('Socket connected');
+      console.log('[Chat] socket:connected event fired!');
 
       // 连接成功后发送用户加入事件
-      socketService.emit('user:join', {
+      const emitData = {
         username: user.username,
         avatar: user.avatar,
-      });
+      };
+      console.log('[Chat] Emitting user:join with:', emitData);
+      socketService.emit('user:join', emitData);
+    });
+
+    // 调试：监听所有错误
+    socketService.on('error', (data) => {
+      console.error('[Chat] Error received:', data);
     });
 
     // 监听断开连接

@@ -17,7 +17,9 @@ class SocketService {
    * 连接到服务器
    */
   connect(userId) {
+    // 如果已经连接，直接触发回调
     if (this.socket && this.connected) {
+      this.emit('socket:connected');
       return this.socket;
     }
 
@@ -30,7 +32,7 @@ class SocketService {
     });
 
     this.socket.on('connect', () => {
-      console.log('Connected to server');
+      console.log('[Socket] connect event fired, socket.id:', this.socket.id);
       this.connected = true;
       this.emit('socket:connected');
     });
@@ -64,10 +66,16 @@ class SocketService {
    * 发送事件
    */
   emit(event, data) {
+    // 优先处理自定义事件（通过 listeners）
+    if (this.listeners.has(event)) {
+      this.listeners.get(event).forEach(callback => callback(data));
+    }
+
+    // 如果 socket 已连接，发送到服务器
     if (this.socket && this.connected) {
       this.socket.emit(event, data);
     } else {
-      console.warn('Socket not connected, cannot emit event:', event);
+      console.warn('[Socket] Not connected, cannot emit to server:', event);
     }
   }
 
