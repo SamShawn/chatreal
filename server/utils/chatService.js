@@ -129,8 +129,22 @@ class ChatService {
     if (!client) return;
 
     try {
-      // 存储用户信息
-      await client.hSet(this.USERS_KEY, userId, JSON.stringify(userData));
+      // 先检查用户是否已存在
+      const existingUser = await client.hGet(this.USERS_KEY, userId);
+
+      // 如果用户已存在，只更新 socketId 和 joinedAt
+      if (existingUser) {
+        const existingData = JSON.parse(existingUser);
+        await client.hSet(this.USERS_KEY, userId, JSON.stringify({
+          ...existingData,
+          ...userData,
+          socketId: userData.socketId,
+          joinedAt: Date.now(), // 更新加入时间
+        }));
+      } else {
+        // 新用户才存储用户信息
+        await client.hSet(this.USERS_KEY, userId, JSON.stringify(userData));
+      }
 
       // 设置用户在线状态
       await client.set(this.USER_STATUS_KEY + userId, 'online');

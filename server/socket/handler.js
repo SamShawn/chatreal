@@ -79,7 +79,7 @@ class SocketHandler {
         username,
         avatar: avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
         socketId: socket.id,
-        joinedAtari: Date.now(),
+        joinedAt: Date.now(),
       });
 
       // 映射关系
@@ -326,11 +326,12 @@ class SocketHandler {
   }
 
   /**
-   * 生成用户ID
+   * 生成用户ID - 使用固定哈希确保同一用户名生成相同ID
+   * 避免用户重新连接时产生重复记录
    */
   generateUserId(username) {
     const hash = createHash('sha256');
-    hash.update(username + Date.now());
+    hash.update(username); // 移除 Date.now()，确保同一用户名生成固定ID
     return hash.digest('hex').substring(0, 16);
   }
 
