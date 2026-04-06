@@ -15,9 +15,21 @@ require('dotenv').config();
 const app = express();
 const server = http.createServer(app);
 
+// 解析 CORS origins - 支持多个地址（逗号分隔）
+const getCorsOrigins = () => {
+  const envOrigins = process.env.CLIENT_URL;
+  if (!envOrigins) return 'http://localhost:3000';
+
+  // 支持逗号分隔的多个地址
+  const origins = envOrigins.split(',').map(o => o.trim());
+  return origins.length > 1 ? origins : origins[0];
+};
+
+const corsOrigins = getCorsOrigins();
+
 // 配置 CORS
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: corsOrigins,
   credentials: true,
 }));
 
@@ -28,7 +40,7 @@ app.use(express.urlencoded({ extended: true }));
 // 配置 Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: corsOrigins,
     credentials: true,
   },
   transports: ['websocket', 'polling'],
