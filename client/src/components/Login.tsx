@@ -1,6 +1,5 @@
 import { useState, type FormEvent, type ChangeEvent } from 'react';
 import { MessageCircle, User as UserIcon } from 'lucide-react';
-import '../styles/App.css';
 import type { LoginProps } from '../types';
 
 /**
