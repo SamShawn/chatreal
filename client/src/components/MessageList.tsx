@@ -87,9 +87,23 @@ function MessageList({ messages, currentUserId, messagesEndRef }: MessageListPro
    * 渲染单条消息
    */
   const renderMessage = (message: Message, index: number) => {
+    // 生成唯一 key：优先使用 message.id，否则使用 index + timestamp 确保唯一性
+    // 使用 Date.now() + Math.random() 作为最终 fallback，确保即使 timestamp 为 0 也能生成唯一 key
+    const messageKey = message.id || `msg-${index}-${message.timestamp || Date.now() + Math.random()}`;
+
+    // 安全检查：确保消息有有效的 sender
+    if (!message.sender || !message.sender.id) {
+      console.warn('Invalid message: missing sender', message);
+      return (
+        <div key={messageKey} className="system-message">
+          [无效消息]
+        </div>
+      );
+    }
+
     if (message.type === 'system') {
       return (
-        <div key={message.id || index} className="system-message">
+        <div key={messageKey} className="system-message">
           {message.content}
         </div>
       );
@@ -98,7 +112,7 @@ function MessageList({ messages, currentUserId, messagesEndRef }: MessageListPro
     const isOwn = message.sender.id === currentUserId;
 
     return (
-      <div key={message.id || index} className="message-group">
+      <div key={messageKey} className="message-group">
         <div className={`message-content ${isOwn ? 'own' : 'other'}`}>
           {!isOwn && (
             <div className="message-header">
