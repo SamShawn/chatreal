@@ -60,7 +60,7 @@ function MessageList({ messages, currentUserId, messagesEndRef }: MessageListPro
     if (message.type === 'file' && message.fileUrl) {
       return (
         <div className="message-file">
-          <FileIcon size={20} style={{ color: 'var(--primary-color)' }} />
+          <FileIcon size={20} className="text-primary" />
           <div>
             <div className="file-name">{message.fileName || '文件'}</div>
             <div className="file-size">
@@ -74,7 +74,7 @@ function MessageList({ messages, currentUserId, messagesEndRef }: MessageListPro
             rel="noopener noreferrer"
             className="ml-auto"
           >
-            <Download size={18} style={{ color: 'var(--primary-color)' }} />
+            <Download size={18} className="text-primary" />
           </a>
         </div>
       );
@@ -119,12 +119,7 @@ function MessageList({ messages, currentUserId, messagesEndRef }: MessageListPro
               <img
                 src={message.sender.avatar}
                 alt={message.sender.username}
-                className="user-avatar"
-                style={{
-                  width: '24px',
-                  height: '24px',
-                  marginRight: '4px'
-                }}
+                className="user-avatar w-6 h-6 mr-1"
               />
               <span className="message-sender">{message.sender.username}</span>
             </div>
@@ -132,8 +127,7 @@ function MessageList({ messages, currentUserId, messagesEndRef }: MessageListPro
           {message.content && <div>{message.content}</div>}
           {renderFileAttachment(message)}
           <div
-            className="message-time text-[11px] opacity-70 mt-1"
-            style={{ textAlign: isOwn ? 'right' : 'left' }}
+            className={`message-time text-[11px] opacity-70 mt-1 ${isOwn ? 'text-right' : 'text-left'}`}
           >
             {formatTime(message.timestamp)}
           </div>

@@ -17,6 +17,7 @@
     --text-secondary: #4a5568;
     --text-muted: #718096;
     --border-color: #e2e8f0;
+    --primary: #667eea;
   }
 
   body {
@@ -62,8 +63,227 @@
   }
 
   .input:focus {
-    @apply outline-none border-primary shadow-lg;
+    @apply outline-none border-[var(--primary-color)] shadow-lg;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+
+  /* App 布局 */
+  .app {
+    @apply h-screen bg-gradient-to-br from-gray-50 to-gray-200;
+  }
+
+  /* 聊天应用布局 */
+  .chat-app {
+    @apply h-screen flex overflow-hidden;
+  }
+
+  /* 侧边栏 */
+  .sidebar {
+    @apply w-72 bg-white border-r flex flex-col;
+  }
+
+  .sidebar.open {
+    @apply translate-x-0;
+  }
+
+  .sidebar-header {
+    @apply p-4 border-b flex items-center gap-2;
+  }
+
+  .sidebar-title {
+    @apply text-lg font-bold text-gray-800;
+  }
+
+  .sidebar-overlay {
+    @apply fixed inset-0 bg-black/50 z-40;
+  }
+
+  .sidebar-overlay.show {
+    @apply block;
+  }
+
+  /* 在线用户区域 */
+  .online-section {
+    @apply p-4 flex-1 overflow-y-auto;
+  }
+
+  .online-header {
+    @apply flex items-center justify-between mb-3;
+  }
+
+  .online-title {
+    @apply text-sm font-semibold text-gray-600;
+  }
+
+  .online-count {
+    @apply bg-gradient-to-r from-[var(--primary-color)] to-[var(--secondary-color)] text-white px-2 py-0.5 rounded-full text-xs font-semibold;
+  }
+
+  .user-list {
+    @apply flex flex-col gap-2;
+  }
+
+  .user-item {
+    @apply flex items-center gap-2 p-2 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors;
+  }
+
+  .user-avatar {
+    @apply w-9 h-9 rounded-full object-cover;
+  }
+
+  .user-name {
+    @apply flex-1 text-sm font-medium text-gray-800;
+  }
+
+  .user-status {
+    @apply w-2 h-2 bg-green-500 rounded-full;
+  }
+
+  /* 主聊天区域 */
+  .chat-main {
+    @apply flex-1 flex flex-col overflow-hidden;
+  }
+
+  .chat-header {
+    @apply p-4 bg-white border-b flex items-center justify-between;
+  }
+
+  .room-info {
+    @apply flex items-center gap-3;
+  }
+
+  .room-name {
+    @apply text-lg font-bold text-gray-800;
+  }
+
+  .chat-actions {
+    @apply flex gap-2;
+  }
+
+  .search-box {
+    @apply relative flex items-center;
+  }
+
+  .search-input {
+    @apply w-52 px-3 py-2 pl-9 border border-gray-200 rounded-lg text-sm transition-all;
+  }
+
+  .search-input:focus {
+    @apply outline-none border-[var(--primary-color)];
+  }
+
+  /* 消息列表 */
+  .chat-messages {
+    @apply flex-1 overflow-y-auto p-4 flex flex-col gap-3;
+  }
+
+  .message-group {
+    @apply flex flex-col gap-1;
+  }
+
+  .message-header {
+    @apply flex items-center gap-2 mb-1;
+  }
+
+  .message-sender {
+    @apply text-sm font-semibold text-gray-800;
+  }
+
+  .message-time {
+    @apply text-xs text-gray-500;
+  }
+
+  .message-content {
+    @apply max-w-[70%] p-3 rounded-xl text-sm leading-relaxed break-words;
+  }
+
+  .message-content.own {
+    @apply bg-gradient-to-r from-[var(--primary-color)] to-[var(--secondary-color)] text-white self-end ml-auto;
+  }
+
+  .message-content.other {
+    @apply bg-white text-gray-800 border border-gray-200;
+  }
+
+  .message-image {
+    @apply max-w-full max-h-72 rounded-lg mt-2;
+  }
+
+  .message-file {
+    @apply flex items-center gap-2 p-3 bg-gray-100 rounded-lg mt-2;
+  }
+
+  .file-name {
+    @apply text-xs font-medium;
+  }
+
+  .file-size {
+    @apply text-xs text-gray-500;
+  }
+
+  .system-message {
+    @apply self-center px-3 py-1 bg-gray-100 rounded-xl text-xs text-gray-600 text-center;
+  }
+
+  /* 消息输入区域 */
+  .chat-input-area {
+    @apply p-4 bg-white border-t;
+  }
+
+  .input-container {
+    @apply flex gap-2 items-end;
+  }
+
+  .message-input {
+    @apply flex-1 min-h-12 max-h-28 p-3 border border-gray-200 rounded-xl text-sm resize-none transition-all;
+    font-family: inherit;
+  }
+
+  .message-input:focus {
+    @apply outline-none border-[var(--primary-color)] shadow-lg;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+
+  .input-actions {
+    @apply flex gap-1;
+  }
+
+  .file-btn {
+    @apply w-12 h-12 border border-gray-200 bg-white rounded-xl flex items-center justify-center cursor-pointer transition-all text-gray-600;
+  }
+
+  .file-btn:hover {
+    @apply bg-gray-100 border-[var(--primary-color)] text-[var(--primary-color)];
+  }
+
+  .send-btn {
+    @apply w-12 h-12 border-none bg-gradient-to-r from-[var(--primary-color)] to-[var(--secondary-color)] rounded-xl flex items-center justify-center cursor-pointer transition-all text-white;
+  }
+
+  .send-btn:hover:not(:disabled) {
+    @apply scale-105 shadow-md;
+  }
+
+  .send-btn:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  .file-input {
+    @apply hidden;
+  }
+
+  /* 错误消息 */
+  .error-message {
+    @apply text-red-500 text-sm mt-2;
+  }
+
+  /* 文本颜色 */
+  .text-primary {
+    color: var(--primary-color);
+  }
+
+  .text-muted {
+    color: var(--text-muted);
   }
 }
 

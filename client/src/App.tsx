@@ -3,7 +3,6 @@ import Login from './components/Login';
 import Chat from './components/Chat';
 import socketService from './services/socket';
 import { useAuthStore } from './store/authStore';
-import './styles/App.css';
 import type { User } from './types';
 
 /**
@@ -61,7 +60,7 @@ function App() {
   if (!isInitialized) {
     return (
       <div className="loading-overlay">
-        <div className="loading" style={{ width: 40, height: 40 }} />
+        <div className="loading w-10 h-10" />
       </div>
     );
   }

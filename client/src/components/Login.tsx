@@ -60,8 +60,7 @@ function Login({ onLogin }: LoginProps) {
         <div className="text-center mb-8">
           <MessageCircle
             size={48}
-            className="mx-auto mb-4"
-            style={{ color: 'var(--primary-color)' }}
+            className="mx-auto mb-4 text-primary"
           />
           <h1 className="text-2xl font-bold text-gray-800">ChatReal</h1>
           <p className="text-gray-500 mt-1">实时协作聊天室</p>
@@ -75,8 +74,7 @@ function Login({ onLogin }: LoginProps) {
             <div className="relative">
               <UserIcon
                 size={20}
-                className="absolute left-4 top-1/2 -translate-y-1/2"
-                style={{ color: 'var(--text-muted)' }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
               />
               <input
                 id="username"

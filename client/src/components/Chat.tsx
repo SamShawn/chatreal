@@ -268,7 +268,7 @@ function Chat({ user }: ChatProps) {
   if (isLoading) {
     return (
       <div className="loading-overlay">
-        <div className="loading" style={{ width: 40, height: 40 }} />
+        <div className="loading w-10 h-10" />
       </div>
     );
   }
@@ -328,8 +328,8 @@ function Chat({ user }: ChatProps) {
             </button>
             <h3 className="room-name">公共聊天室</h3>
             <div className="flex gap-2">
-              <Users size={18} style={{ color: 'var(--text-muted)' }} />
-              <span style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
+              <Users size={18} className="text-gray-500" />
+              <span className="text-gray-500 text-sm">
                 {onlineUsers.length}
               </span>
             </div>
@@ -347,13 +347,8 @@ function Chat({ user }: ChatProps) {
               />
               {searchQuery && (
                 <button
-                  className="btn btn-icon absolute right-1"
+                  className="btn btn-icon !w-6 !h-6 !p-0 absolute right-1"
                   onClick={clearSearch}
-                  style={{
-                    width: 24,
-                    height: 24,
-                    padding: 0
-                  }}
                 >
                   <X size={14} />
                 </button>
@@ -392,9 +387,8 @@ function Chat({ user }: ChatProps) {
               />
               <label
                 htmlFor="file-upload"
-                className="file-btn"
+                className="file-btn cursor-pointer"
                 title="上传文件"
-                style={{ cursor: 'pointer' }}
               >
                 <Upload size={20} />
               </label>
@@ -415,7 +409,7 @@ function Chat({ user }: ChatProps) {
       {/* 错误提示 */}
       {error && (
         <div
-          className="fixed bottom-5 right-5 bg-red-500 text-white px-4 py-3 rounded-lg z-[1000] animate-slideIn"
+          className="fixed bottom-5 right-5 bg-red-500 text-white px-4 py-3 rounded-lg z-[1000] animate-pulse"
         >
           {error}
           <button
