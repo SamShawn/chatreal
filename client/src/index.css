@@ -2,84 +2,122 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================
+   BRUTALIST DESIGN SYSTEM
+   粗野主义设计规范 - 裸露·直接·粗犷
+   ============================================ */
+
 @layer base {
   :root {
-    --primary-color: #667eea;
-    --primary-hover: #5a67d8;
-    --secondary-color: #764ba2;
-    --success-color: #48bb78;
-    --danger-color: #f56565;
-    --warning-color: #ed8936;
-    --bg-primary: #f7fafc;
-    --bg-secondary: #ffffff;
-    --bg-tertiary: #edf2f7;
-    --text-primary: #1a202c;
-    --text-secondary: #4a5568;
-    --text-muted: #718096;
-    --border-color: #e2e8f0;
-    --primary: #667eea;
+    /* 粗野主义配色：黑白灰 + 警示黄强调色 */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f5f5;
+    --bg-tertiary: #e0e0e0;
+    --text-primary: #000000;
+    --text-secondary: #333333;
+    --text-muted: #666666;
+    --border-color: #000000;
+    /* 强调色：警示黄 */
+    --accent-color: #ffff00;
+    --accent-hover: #e6e600;
+  }
+
+  * {
+    border-color: var(--border-color);
   }
 
   body {
-    @apply font-sans antialiased;
-    background: linear-gradient(135deg, var(--bg-primary) 0%, #e2e8f0 100%);
+    @apply font-mono antialiased;
+    background: var(--bg-primary);
     color: var(--text-primary);
     min-height: 100vh;
+    /* 粗野主义：使用等宽字体 */
+    font-family: 'Courier New', Courier, monospace;
+  }
+
+  /* 移除所有圆角 - 粗野主义拒绝圆润 */
+  *, *::before, *::after {
+    border-radius: 0 !important;
   }
 }
 
 @layer components {
+  /* ============================================
+     基础按钮 - 粗野主义硬朗风格
+     ============================================ */
   .btn {
-    @apply px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 inline-flex items-center justify-center gap-1 cursor-pointer;
+    @apply px-6 py-3 text-sm font-bold uppercase tracking-wider transition-none cursor-pointer;
+    border: 3px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    box-shadow: 4px 4px 0 var(--border-color);
   }
 
+  .btn:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 var(--border-color);
+  }
+
+  .btn:active {
+    transform: translate(4px, 4px);
+    box-shadow: none;
+  }
+
+  /* 强调色按钮 */
   .btn-primary {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    @apply text-white;
+    background: var(--accent-color);
   }
 
   .btn-primary:hover {
-    @apply -translate-y-0.5 shadow-md;
+    background: var(--accent-hover);
   }
 
-  .btn-primary:active {
-    @apply translate-y-0;
-  }
-
-  .btn-secondary {
-    @apply bg-white text-gray-800 border border-gray-200;
-  }
-
-  .btn-secondary:hover {
-    @apply bg-gray-100;
-  }
-
-  .btn-icon {
-    @apply p-2 w-9 h-9 rounded-full;
-  }
-
+  /* ============================================
+     输入框 - 暴露结构
+     ============================================ */
   .input {
-    @apply px-4 py-2 border border-gray-200 rounded-lg text-sm transition-all duration-150 bg-white;
+    @apply w-full px-4 py-3 text-sm;
+    border: 3px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: inherit;
   }
 
   .input:focus {
-    @apply outline-none border-[var(--primary-color)] shadow-lg;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    @apply outline-none;
+    background: var(--bg-secondary);
+    /* 粗野主义：使用粗边框而非阴影 */
+    border-width: 4px;
   }
 
-  /* App 布局 */
+  .input::placeholder {
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+
+  /* ============================================
+     应用布局
+     ============================================ */
   .app {
-    @apply h-screen bg-gradient-to-br from-gray-50 to-gray-200;
+    @apply h-screen;
+    background: var(--bg-primary);
   }
 
-  /* 聊天应用布局 */
   .chat-app {
     @apply h-screen flex overflow-hidden;
+    border: 4px solid var(--border-color);
+    margin: 8px;
   }
 
-  /* 侧边栏 */
+  /* ============================================
+     侧边栏 - 网格暴露
+     ============================================ */
   .sidebar {
-    @apply w-72 bg-white border-r flex flex-col;
+    @apply w-80 flex flex-col;
+    border-right: 4px solid var(--border-color);
+    background: var(--bg-secondary);
   }
 
   .sidebar.open {
@@ -87,15 +125,19 @@
   }
 
   .sidebar-header {
-    @apply p-4 border-b flex items-center gap-2;
+    @apply p-4 flex items-center gap-3;
+    border-bottom: 4px solid var(--border-color);
+    background: var(--accent-color);
   }
 
   .sidebar-title {
-    @apply text-lg font-bold text-gray-800;
+    @apply text-lg font-black uppercase tracking-wider;
+    font-size: 18px;
   }
 
   .sidebar-overlay {
-    @apply fixed inset-0 bg-black/50 z-40;
+    @apply fixed inset-0 z-40;
+    /* background: rgba(0, 0, 0, 0.8); */
   }
 
   .sidebar-overlay.show {
@@ -108,15 +150,19 @@
   }
 
   .online-header {
-    @apply flex items-center justify-between mb-3;
+    @apply flex items-center justify-between mb-4 p-2;
+    border: 2px solid var(--border-color);
+    background: var(--bg-primary);
   }
 
   .online-title {
-    @apply text-sm font-semibold text-gray-600;
+    @apply text-xs font-black uppercase tracking-widest;
   }
 
   .online-count {
-    @apply bg-gradient-to-r from-[var(--primary-color)] to-[var(--secondary-color)] text-white px-2 py-0.5 rounded-full text-xs font-semibold;
+    @apply px-2 py-1 text-xs font-bold;
+    background: var(--border-color);
+    color: var(--bg-primary);
   }
 
   .user-list {
@@ -124,28 +170,42 @@
   }
 
   .user-item {
-    @apply flex items-center gap-2 p-2 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors;
+    @apply flex items-center gap-3 p-3 cursor-pointer;
+    border: 2px solid var(--border-color);
+    background: var(--bg-primary);
+    transition: none;
+  }
+
+  .user-item:hover {
+    background: var(--accent-color);
   }
 
   .user-avatar {
-    @apply w-9 h-9 rounded-full object-cover;
+    @apply w-10 h-10 object-cover;
+    border: 2px solid var(--border-color);
   }
 
   .user-name {
-    @apply flex-1 text-sm font-medium text-gray-800;
+    @apply flex-1 text-sm font-bold uppercase;
   }
 
   .user-status {
-    @apply w-2 h-2 bg-green-500 rounded-full;
+    @apply w-4 h-4;
+    background: var(--border-color);
   }
 
-  /* 主聊天区域 */
+  /* ============================================
+     主聊天区域
+     ============================================ */
   .chat-main {
     @apply flex-1 flex flex-col overflow-hidden;
+    background: var(--bg-primary);
   }
 
   .chat-header {
-    @apply p-4 bg-white border-b flex items-center justify-between;
+    @apply p-4 flex items-center justify-between;
+    border-bottom: 4px solid var(--border-color);
+    background: var(--bg-secondary);
   }
 
   .room-info {
@@ -153,7 +213,7 @@
   }
 
   .room-name {
-    @apply text-lg font-bold text-gray-800;
+    @apply text-lg font-black uppercase tracking-wider;
   }
 
   .chat-actions {
@@ -165,20 +225,36 @@
   }
 
   .search-input {
-    @apply w-52 px-3 py-2 pl-9 border border-gray-200 rounded-lg text-sm transition-all;
+    @apply w-56 px-3 py-2 text-sm;
+    border: 3px solid var(--border-color);
+    background: var(--bg-primary);
+    font-family: inherit;
   }
 
   .search-input:focus {
-    @apply outline-none border-[var(--primary-color)];
+    @apply outline-none;
+    border-width: 4px;
+    background: var(--bg-secondary);
   }
 
-  /* 消息列表 */
+  /* 搜索图标 */
+  .search-icon {
+    pointer-events: none;
+  }
+
+  /* ============================================
+     消息列表 - 粗野主义块状设计
+     ============================================ */
   .chat-messages {
-    @apply flex-1 overflow-y-auto p-4 flex flex-col gap-3;
+    @apply flex-1 overflow-y-auto p-4 flex flex-col gap-4;
+    background:
+      linear-gradient(var(--bg-tertiary) 1px, transparent 1px),
+      linear-gradient(90deg, var(--bg-tertiary) 1px, transparent 1px);
+    background-size: 20px 20px;
   }
 
   .message-group {
-    @apply flex flex-col gap-1;
+    @apply flex flex-col;
   }
 
   .message-header {
@@ -186,155 +262,272 @@
   }
 
   .message-sender {
-    @apply text-sm font-semibold text-gray-800;
+    @apply text-xs font-black uppercase tracking-wider;
   }
 
   .message-time {
-    @apply text-xs text-gray-500;
+    @apply text-xs font-bold;
+    color: var(--text-muted);
   }
 
+  /* 消息内容块 - 粗野主义：无气泡，使用硬边框块状设计 */
   .message-content {
-    @apply max-w-[70%] p-3 rounded-xl text-sm leading-relaxed break-words;
+    @apply max-w-[75%] p-4 text-sm leading-relaxed break-words;
+    border: 3px solid var(--border-color);
+    background: var(--bg-primary);
   }
 
   .message-content.own {
-    @apply bg-gradient-to-r from-[var(--primary-color)] to-[var(--secondary-color)] text-white self-end ml-auto;
+    @apply self-end ml-auto;
+    background: var(--accent-color);
+    border-width: 4px;
   }
 
   .message-content.other {
-    @apply bg-white text-gray-800 border border-gray-200;
+    @apply self-start;
+    background: var(--bg-primary);
   }
 
   .message-image {
-    @apply max-w-full max-h-72 rounded-lg mt-2;
+    @apply max-w-full max-h-80 mt-2;
+    border: 3px solid var(--border-color);
   }
 
   .message-file {
-    @apply flex items-center gap-2 p-3 bg-gray-100 rounded-lg mt-2;
+    @apply flex items-center gap-3 p-3 mt-2;
+    border: 2px solid var(--border-color);
+    background: var(--bg-secondary);
   }
 
   .file-name {
-    @apply text-xs font-medium;
+    @apply text-xs font-bold uppercase;
   }
 
   .file-size {
-    @apply text-xs text-gray-500;
+    @apply text-xs font-bold;
+    color: var(--text-muted);
   }
 
+  /* 系统消息 */
   .system-message {
-    @apply self-center px-3 py-1 bg-gray-100 rounded-xl text-xs text-gray-600 text-center;
+    @apply self-center px-4 py-2 text-xs font-bold uppercase tracking-wider text-center;
+    border: 2px dashed var(--border-color);
+    background: var(--bg-secondary);
+    color: var(--text-muted);
   }
 
-  /* 消息输入区域 */
+  /* ============================================
+     消息输入区域
+     ============================================ */
   .chat-input-area {
-    @apply p-4 bg-white border-t;
+    @apply p-4;
+    border-top: 4px solid var(--border-color);
+    background: var(--bg-secondary);
   }
 
   .input-container {
-    @apply flex gap-2 items-end;
+    @apply flex gap-0 items-stretch;
   }
 
   .message-input {
-    @apply flex-1 min-h-12 max-h-28 p-3 border border-gray-200 rounded-xl text-sm resize-none transition-all;
+    @apply flex-1 min-h-14 max-h-32 p-4 text-sm resize-none;
+    border: 3px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-primary);
     font-family: inherit;
+    border-right: none;
   }
 
   .message-input:focus {
-    @apply outline-none border-[var(--primary-color)] shadow-lg;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    @apply outline-none;
+    background: var(--bg-primary);
+    border-width: 4px;
   }
 
   .input-actions {
-    @apply flex gap-1;
+    @apply flex;
   }
 
+  /* 文件按钮 */
   .file-btn {
-    @apply w-12 h-12 border border-gray-200 bg-white rounded-xl flex items-center justify-center cursor-pointer transition-all text-gray-600;
+    @apply w-14 h-14 flex items-center justify-center cursor-pointer;
+    border: 3px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-primary);
   }
 
   .file-btn:hover {
-    @apply bg-gray-100 border-[var(--primary-color)] text-[var(--primary-color)];
+    background: var(--accent-color);
   }
 
+  /* 发送按钮 - 强调色 */
   .send-btn {
-    @apply w-12 h-12 border-none bg-gradient-to-r from-[var(--primary-color)] to-[var(--secondary-color)] rounded-xl flex items-center justify-center cursor-pointer transition-all text-white;
+    @apply w-14 h-14 flex items-center justify-center cursor-pointer;
+    border: 3px solid var(--border-color);
+    background: var(--accent-color);
+    color: var(--text-primary);
+    box-shadow: 4px 4px 0 var(--border-color);
   }
 
   .send-btn:hover:not(:disabled) {
-    @apply scale-105 shadow-md;
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 var(--border-color);
+    background: var(--accent-hover);
+  }
+
+  .send-btn:active:not(:disabled) {
+    transform: translate(4px, 4px);
+    box-shadow: none;
   }
 
   .send-btn:disabled {
-    @apply opacity-50 cursor-not-allowed;
+    @apply opacity-40;
+    background: var(--bg-tertiary);
   }
 
   .file-input {
     @apply hidden;
   }
 
-  /* 错误消息 */
+  /* ============================================
+     错误消息 - 粗野主义风格
+     ============================================ */
   .error-message {
-    @apply text-red-500 text-sm mt-2;
+    @apply text-sm font-bold uppercase mt-2;
+    color: #ff0000;
   }
 
-  /* 文本颜色 */
+  /* ============================================
+     登录页面
+     ============================================ */
+  .login-container {
+    @apply min-h-screen flex items-center justify-center p-4;
+    background:
+      linear-gradient(var(--bg-tertiary) 1px, transparent 1px),
+      linear-gradient(90deg, var(--bg-tertiary) 1px, transparent 1px);
+    background-size: 16px 16px;
+  }
+
+  .login-box {
+    @apply w-full max-w-md p-8;
+    border: 4px solid var(--border-color);
+    background: var(--bg-primary);
+    box-shadow: 8px 8px 0 var(--border-color);
+  }
+
+  .login-title {
+    @apply text-3xl font-black uppercase tracking-widest text-center mb-2;
+  }
+
+  .login-subtitle {
+    @apply text-xs font-bold uppercase text-center mb-8 tracking-widest;
+    color: var(--text-muted);
+  }
+
+  /* ============================================
+     通知提示
+     ============================================ */
+  .notification-error {
+    @apply fixed bottom-5 right-5 px-5 py-4 z-50 font-bold uppercase text-sm;
+    border: 3px solid var(--border-color);
+    background: #ff0000;
+    color: var(--bg-primary);
+    box-shadow: 4px 4px 0 var(--border-color);
+  }
+
+  .notification-disconnected {
+    @apply fixed top-5 right-5 px-4 py-3 z-50 font-bold uppercase text-xs;
+    border: 3px solid var(--border-color);
+    background: var(--border-color);
+    color: var(--bg-primary);
+  }
+
+  /* ============================================
+     空状态
+     ============================================ */
+  .empty-state {
+    @apply h-full flex flex-col items-center justify-center;
+  }
+
+  .empty-state-text {
+    @apply text-sm font-bold uppercase tracking-wider;
+    color: var(--text-muted);
+  }
+
+  .empty-state-hint {
+    @apply text-xs font-bold uppercase mt-2 tracking-widest;
+    color: var(--text-muted);
+  }
+
+  /* 加载动画 - 粗野主义风格 */
+  .loading-overlay {
+    @apply fixed inset-0 flex items-center justify-center z-50;
+    background: var(--bg-primary);
+  }
+
+  .loading {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--border-color);
+    animation: none;
+  }
+
+  /* 闪烁动画 */
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+
+  .blink {
+    animation: blink 1s step-end infinite;
+  }
+}
+
+@layer utilities {
+  /* 滚动条 - 粗野主义风格 */
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-left: 2px solid var(--border-color);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border: 2px solid var(--bg-secondary);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+  }
+
+  /* 文字颜色 */
   .text-primary {
-    color: var(--primary-color);
+    color: var(--text-primary);
   }
 
   .text-muted {
     color: var(--text-muted);
   }
-}
 
-@layer utilities {
-  .loading-spinner {
-    @apply w-5 h-5 border-2 border-gray-200 border-t-primary rounded-full animate-spin;
-  }
+  /* 响应式调整 */
+  @media (max-width: 768px) {
+    .chat-app {
+      margin: 0;
+      border: none;
+    }
 
-  /* 加载动画 */
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
+    .btn {
+      @apply px-4 py-2;
+      border-width: 2px;
+      box-shadow: 2px 2px 0 var(--border-color);
+    }
+
+    .search-input {
+      @apply w-40;
     }
   }
-
-  .loading {
-    width: 20px;
-    height: 20px;
-    border: 2px solid var(--border-color);
-    border-top-color: var(--primary-color);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-
-  /* 加载遮罩 */
-  .loading-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(255, 255, 255, 0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-  }
-}
-
-/* 滚动条样式 */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--bg-tertiary);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--text-muted);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
 }

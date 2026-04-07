@@ -10,8 +10,8 @@ interface MessageListProps {
 }
 
 /**
- * 消息列表组件
- * 显示聊天消息
+ * 消息列表组件 - 粗野主义风格
+ * 块状消息设计 + 裸露网格背景
  */
 function MessageList({ messages, currentUserId, messagesEndRef }: MessageListProps) {
   const prevMessagesLengthRef = useRef(0);
@@ -19,7 +19,7 @@ function MessageList({ messages, currentUserId, messagesEndRef }: MessageListPro
   /**
    * 自动滚动到底部
    */
-  const scrollToBottom = (smooth = true) => {
+  const scrollToBottom = (smooth = false) => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' });
     }
@@ -50,7 +50,7 @@ function MessageList({ messages, currentUserId, messagesEndRef }: MessageListPro
       return (
         <img
           src={message.fileUrl}
-          alt={message.fileName || '图片'}
+          alt={message.fileName || 'IMAGE'}
           className="message-image"
           loading="lazy"
         />
@@ -60,9 +60,9 @@ function MessageList({ messages, currentUserId, messagesEndRef }: MessageListPro
     if (message.type === 'file' && message.fileUrl) {
       return (
         <div className="message-file">
-          <FileIcon size={20} className="text-primary" />
+          <FileIcon size={20} />
           <div>
-            <div className="file-name">{message.fileName || '文件'}</div>
+            <div className="file-name">{message.fileName || 'FILE'}</div>
             <div className="file-size">
               {formatFileSize(message.fileSize)}
             </div>
@@ -74,7 +74,7 @@ function MessageList({ messages, currentUserId, messagesEndRef }: MessageListPro
             rel="noopener noreferrer"
             className="ml-auto"
           >
-            <Download size={18} className="text-primary" />
+            <Download size={18} />
           </a>
         </div>
       );
@@ -87,20 +87,20 @@ function MessageList({ messages, currentUserId, messagesEndRef }: MessageListPro
    * 渲染单条消息
    */
   const renderMessage = (message: Message, index: number) => {
-    // 生成唯一 key：优先使用 message.id，否则使用 index + timestamp 确保唯一性
-    // 使用 Date.now() + Math.random() 作为最终 fallback，确保即使 timestamp 为 0 也能生成唯一 key
+    // 生成唯一 key
     const messageKey = message.id || `msg-${index}-${message.timestamp || Date.now() + Math.random()}`;
 
-    // 安全检查：确保消息有有效的 sender
+    // 安全检查
     if (!message.sender || !message.sender.id) {
       console.warn('Invalid message: missing sender', message);
       return (
         <div key={messageKey} className="system-message">
-          [无效消息]
+          [INVALID MESSAGE]
         </div>
       );
     }
 
+    // 系统消息
     if (message.type === 'system') {
       return (
         <div key={messageKey} className="system-message">
@@ -114,22 +114,27 @@ function MessageList({ messages, currentUserId, messagesEndRef }: MessageListPro
     return (
       <div key={messageKey} className="message-group">
         <div className={`message-content ${isOwn ? 'own' : 'other'}`}>
+          {/* 对方消息显示发送者信息 */}
           {!isOwn && (
             <div className="message-header">
               <img
                 src={message.sender.avatar}
                 alt={message.sender.username}
-                className="user-avatar w-6 h-6 mr-1"
+                className="user-avatar w-6 h-6 mr-2"
               />
               <span className="message-sender">{message.sender.username}</span>
             </div>
           )}
-          {message.content && <div>{message.content}</div>}
+          {/* 消息内容 */}
+          {message.content && <div className="whitespace-pre-wrap">{message.content}</div>}
+          {/* 文件附件 */}
           {renderFileAttachment(message)}
+          {/* 时间戳 - 粗野主义风格 */}
           <div
-            className={`message-time text-[11px] opacity-70 mt-1 ${isOwn ? 'text-right' : 'text-left'}`}
+            className={`text-[10px] font-bold tracking-widest mt-2 ${isOwn ? 'text-right' : 'text-left'}`}
+            style={{ color: 'var(--text-muted)' }}
           >
-            {formatTime(message.timestamp)}
+            [{formatTime(message.timestamp)}]
           </div>
         </div>
       </div>
@@ -139,9 +144,9 @@ function MessageList({ messages, currentUserId, messagesEndRef }: MessageListPro
   return (
     <div className="chat-messages">
       {messages.length === 0 ? (
-        <div className="h-full flex flex-col items-center justify-center text-[var(--text-muted)]">
-          <p>暂无消息</p>
-          <p className="text-[13px] mt-2">发送第一条消息开始聊天吧</p>
+        <div className="empty-state">
+          <p className="empty-state-text">NO MESSAGES YET</p>
+          <p className="empty-state-hint">SEND THE FIRST MESSAGE</p>
         </div>
       ) : (
         messages.map((message, index) => renderMessage(message, index))

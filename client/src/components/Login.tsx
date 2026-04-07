@@ -1,10 +1,10 @@
 import { useState, type FormEvent, type ChangeEvent } from 'react';
-import { MessageCircle, User as UserIcon } from 'lucide-react';
+import { User as UserIcon } from 'lucide-react';
 import type { LoginProps } from '../types';
 
 /**
- * 登录组件
- * 允许用户输入用户名加入聊天室
+ * 登录组件 - 粗野主义风格
+ * 裸露结构 + 硬朗线条 + 高对比度
  */
 function Login({ onLogin }: LoginProps) {
   const [username, setUsername] = useState('');
@@ -20,27 +20,26 @@ function Login({ onLogin }: LoginProps) {
 
     // 验证用户名
     if (!username.trim()) {
-      setError('请输入用户名');
+      setError('REQUIRED');
       return;
     }
 
     if (username.length < 2) {
-      setError('用户名至少需要2个字符');
+      setError('MIN 2 CHARS');
       return;
     }
 
     if (username.length > 20) {
-      setError('用户名不能超过20个字符');
+      setError('MAX 20 CHARS');
       return;
     }
 
     setIsLoading(true);
 
     try {
-      // 调用父组件的登录回调
       await onLogin(username.trim());
     } catch {
-      setError('登录失败，请重试');
+      setError('ERROR');
     } finally {
       setIsLoading(false);
     }
@@ -55,32 +54,30 @@ function Login({ onLogin }: LoginProps) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-200 p-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+    <div className="login-container">
+      <div className="login-box">
         <div className="text-center mb-8">
-          <MessageCircle
-            size={48}
-            className="mx-auto mb-4 text-primary"
-          />
-          <h1 className="text-2xl font-bold text-gray-800">ChatReal</h1>
-          <p className="text-gray-500 mt-1">实时协作聊天室</p>
+          {/* 粗野主义：使用纯文本标题替代图标 */}
+          <h1 className="login-title">CHAT_REAL</h1>
+          <p className="login-subtitle">[ REAL_TIME_CHAT ]</p>
         </div>
 
         <form onSubmit={handleSubmit}>
           <div>
             <label htmlFor="username" className="sr-only">
-              用户名
+              USERNAME
             </label>
             <div className="relative">
               <UserIcon
                 size={20}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+                className="absolute left-4 top-1/2 -translate-y-1/2"
+                style={{ color: 'var(--text-muted)' }}
               />
               <input
                 id="username"
                 type="text"
-                className="input w-full pl-12"
-                placeholder="请输入用户名"
+                className="input pl-12"
+                placeholder="ENTER USERNAME"
                 value={username}
                 onChange={handleChange}
                 disabled={isLoading}
@@ -89,9 +86,10 @@ function Login({ onLogin }: LoginProps) {
             </div>
           </div>
 
+          {/* 错误提示 - 粗野主义大写风格 */}
           {error && (
-            <p className="text-red-500 text-sm text-center mt-2">
-              {error}
+            <p className="error-message text-center mt-3">
+              [!] {error}
             </p>
           )}
 
@@ -100,9 +98,16 @@ function Login({ onLogin }: LoginProps) {
             className="btn btn-primary w-full mt-6"
             disabled={isLoading}
           >
-            {isLoading ? '加入中...' : '加入聊天'}
+            {isLoading ? 'CONNECTING...' : 'JOIN CHAT'}
           </button>
         </form>
+
+        {/* 底部装饰线条 */}
+        <div className="mt-8 pt-4 border-t-2 border-solid" style={{ borderColor: 'var(--border-color)' }}>
+          <p className="text-xs text-center font-bold tracking-widest" style={{ color: 'var(--text-muted)' }}>
+            STATUS: ONLINE
+          </p>
+        </div>
       </div>
     </div>
   );

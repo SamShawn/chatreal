@@ -15,8 +15,8 @@ interface ChatProps {
 const DEFAULT_ROOM = 'general';
 
 /**
- * 聊天主组件
- * 处理实时聊天、消息发送、文件上传等功能
+ * 聊天主组件 - 粗野主义风格
+ * 直接·硬朗·结构裸露
  */
 function Chat({ user }: ChatProps) {
   // 使用 Zustand store
@@ -45,7 +45,7 @@ function Chat({ user }: ChatProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // 防抖后的搜索函数 - 使用 useRef 实现真正的防抖
+  // 防抖后的搜索函数
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const debouncedSearch = useCallback((query: string) => {
@@ -86,7 +86,7 @@ function Chat({ user }: ChatProps) {
     // 监听断开连接
     socketService.on('socket:disconnected', () => {
       setConnected(false);
-      setError('连接已断开');
+      setError('CONNECTION LOST');
     });
 
     // 监听加入成功
@@ -114,8 +114,8 @@ function Chat({ user }: ChatProps) {
       addMessage({
         id: `system-${Date.now()}`,
         type: 'system',
-        content: `${response.username} 加入了聊天`,
-        sender: { id: 'system', username: '系统', avatar: '' },
+        content: `>> ${response.username} JOINED`,
+        sender: { id: 'system', username: 'SYSTEM', avatar: '' },
         timestamp: Date.now(),
       });
     });
@@ -153,7 +153,7 @@ function Chat({ user }: ChatProps) {
     // 监听错误
     socketService.on('socket:error', (data: unknown) => {
       const errorData = data as { message?: string };
-      setError(errorData.message || '发生错误');
+      setError(errorData.message || 'ERROR');
     });
 
     return () => {
@@ -184,7 +184,7 @@ function Chat({ user }: ChatProps) {
   const handleFileUpload = async (file: File) => {
     // 验证文件大小
     if (!validateFileSize(file.size, 10 * 1024 * 1024)) {
-      setError('文件大小不能超过10MB');
+      setError('FILE TOO LARGE (MAX 10MB)');
       return;
     }
 
@@ -203,7 +203,7 @@ function Chat({ user }: ChatProps) {
       });
 
       if (!response.ok) {
-        throw new Error('上传失败');
+        throw new Error('UPLOAD FAILED');
       }
 
       const data = await response.json() as { fileUrl: string; fileName: string; fileSize: number };
@@ -218,7 +218,7 @@ function Chat({ user }: ChatProps) {
         fileSize: data.fileSize,
       });
     } catch {
-      setError('文件上传失败');
+      setError('UPLOAD FAILED');
     }
   };
 
@@ -268,7 +268,7 @@ function Chat({ user }: ChatProps) {
   if (isLoading) {
     return (
       <div className="loading-overlay">
-        <div className="loading w-10 h-10" />
+        <div className="loading" />
       </div>
     );
   }
@@ -285,18 +285,18 @@ function Chat({ user }: ChatProps) {
       <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <button
-            className="btn btn-secondary btn-icon hidden md:block"
+            className="btn !p-2 hidden md:block"
             onClick={() => setIsSidebarOpen(false)}
           >
-            <X size={20} />
+            <X size={18} />
           </button>
-          <h2 className="sidebar-title">在线用户</h2>
+          <h2 className="sidebar-title">USERS</h2>
         </div>
 
         <div className="online-section">
           <div className="online-header">
-            <span className="online-title">聊天室</span>
-            <span className="online-count">{onlineUsers.length}</span>
+            <span className="online-title">ONLINE</span>
+            <span className="online-count">[{onlineUsers.length}]</span>
           </div>
 
           <div className="user-list">
@@ -313,6 +313,13 @@ function Chat({ user }: ChatProps) {
             ))}
           </div>
         </div>
+
+        {/* 侧边栏底部 */}
+        <div className="p-4 border-t-2" style={{ borderColor: 'var(--border-color)' }}>
+          <div className="text-xs font-bold tracking-widest" style={{ color: 'var(--text-muted)' }}>
+            ROOM: GENERAL
+          </div>
+        </div>
       </aside>
 
       {/* 主聊天区域 */}
@@ -321,33 +328,33 @@ function Chat({ user }: ChatProps) {
         <header className="chat-header">
           <div className="room-info">
             <button
-              className="btn btn-secondary btn-icon md:hidden"
+              className="btn !p-2 md:hidden"
               onClick={() => setIsSidebarOpen(true)}
             >
-              <Menu size={20} />
+              <Menu size={18} />
             </button>
-            <h3 className="room-name">公共聊天室</h3>
-            <div className="flex gap-2">
-              <Users size={18} className="text-gray-500" />
-              <span className="text-gray-500 text-sm">
-                {onlineUsers.length}
+            <h3 className="room-name">GENERAL</h3>
+            <div className="flex gap-2 items-center">
+              <Users size={18} />
+              <span className="text-sm font-bold">
+                [{onlineUsers.length}]
               </span>
             </div>
           </div>
 
           <div className="chat-actions">
-            <div className="search-box relative">
-              <Search size={16} className="search-icon absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <div className="search-box">
+              <Search size={16} className="search-icon absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
               <input
                 type="text"
                 className="search-input pl-9"
-                placeholder="搜索消息..."
+                placeholder="SEARCH..."
                 value={searchQuery}
                 onChange={handleSearchChange}
               />
               {searchQuery && (
                 <button
-                  className="btn btn-icon !w-6 !h-6 !p-0 absolute right-1"
+                  className="btn !p-1 !px-2 absolute right-1 top-1/2 -translate-y-1/2 text-xs"
                   onClick={clearSearch}
                 >
                   <X size={14} />
@@ -369,7 +376,7 @@ function Chat({ user }: ChatProps) {
           <div className="input-container">
             <textarea
               className="message-input"
-              placeholder={showSearchResults ? '搜索模式' : '输入消息...'}
+              placeholder={showSearchResults ? 'SEARCH MODE' : 'TYPE MESSAGE...'}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress as unknown as (e: FormEvent<HTMLTextAreaElement>) => void}
@@ -388,7 +395,7 @@ function Chat({ user }: ChatProps) {
               <label
                 htmlFor="file-upload"
                 className="file-btn cursor-pointer"
-                title="上传文件"
+                title="UPLOAD FILE"
               >
                 <Upload size={20} />
               </label>
@@ -397,7 +404,7 @@ function Chat({ user }: ChatProps) {
                 className="send-btn"
                 onClick={handleSendMessage}
                 disabled={!inputValue.trim() || showSearchResults}
-                title="发送消息"
+                title="SEND"
               >
                 <Send size={20} />
               </button>
@@ -406,15 +413,14 @@ function Chat({ user }: ChatProps) {
         </div>
       </main>
 
-      {/* 错误提示 */}
+      {/* 错误提示 - 粗野主义风格 */}
       {error && (
-        <div
-          className="fixed bottom-5 right-5 bg-red-500 text-white px-4 py-3 rounded-lg z-[1000] animate-pulse"
-        >
-          {error}
+        <div className="notification-error">
+          [!] {error}
           <button
             onClick={() => setError('')}
-            className="bg-transparent border-none text-white ml-2 cursor-pointer"
+            className="ml-3 cursor-pointer bg-transparent border-none"
+            style={{ color: 'var(--bg-primary)' }}
           >
             <X size={16} />
           </button>
@@ -423,10 +429,8 @@ function Chat({ user }: ChatProps) {
 
       {/* 连接状态指示 */}
       {!isConnected && (
-        <div
-          className="fixed top-5 right-5 bg-orange-400 text-white px-3 py-2 rounded-md text-xs z-[1000]"
-        >
-          连接已断开
+        <div className="notification-disconnected">
+          OFFLINE
         </div>
       )}
     </div>
