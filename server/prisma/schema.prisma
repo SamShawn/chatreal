@@ -1,0 +1,256 @@
+// Prisma Schema for Enterprise Chat Application
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Model
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  username      String    @unique
+  passwordHash  String
+  avatar        String?
+  status        UserStatus @default(OFFLINE)
+  role          Role       @default(MEMBER)
+  bannedAt      DateTime?
+  bannedBy      String?
+  banReason     String?
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  memberships   Membership[]
+  messages      Message[]
+  reactions     Reaction[]
+  ownedChannels Channel[]  @relation("ChannelOwner")
+  fileUploads   File[]
+  conversations ConversationParticipant[]
+
+  // Auth
+  refreshToken  String?
+  refreshTokenExpiry DateTime?
+
+  @@index([email])
+  @@index([username])
+}
+
+enum UserStatus {
+  ONLINE
+  AWAY
+  DND
+  OFFLINE
+}
+
+enum Role {
+  ADMIN
+  MODERATOR
+  MEMBER
+  GUEST
+}
+
+// Channel Model (Public/Private Chat Rooms)
+model Channel {
+  id          String      @id @default(cuid())
+  name        String
+  description String?
+  type        ChannelType @default(PUBLIC)
+  avatar      String?
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  ownerId     String
+  owner       User        @relation("ChannelOwner", fields: [ownerId], references: [id])
+  memberships Membership[]
+  messages    Message[]
+
+  @@index([name])
+  @@index([type])
+}
+
+enum ChannelType {
+  PUBLIC
+  PRIVATE
+  DIRECT
+}
+
+// Membership Model (Channel Participants)
+model Membership {
+  id          String     @id @default(cuid())
+  userId      String
+  channelId   String
+  role        MemberRole @default(MEMBER)
+
+  joinedAt    DateTime   @default(now())
+
+  // Relations
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  channel     Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, channelId])
+  @@index([userId])
+  @@index([channelId])
+}
+
+enum MemberRole {
+  OWNER
+  ADMIN
+  MEMBER
+  GUEST
+}
+
+// Conversation Model (Direct Messages)
+model Conversation {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  participants ConversationParticipant[]
+  messages    Message[]
+
+  @@index([createdAt])
+}
+
+// Conversation Participant Model
+model ConversationParticipant {
+  id             String   @id @default(cuid())
+  conversationId String
+  userId         String
+  lastReadAt     DateTime @default(now())
+  createdAt      DateTime @default(now())
+
+  // Relations
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+}
+
+// Message Model
+model Message {
+  id          String      @id @default(cuid())
+  content     String
+  contentHtml String?
+  type        MessageType @default(TEXT)
+
+  // References
+  senderId      String
+  sender        User        @relation(fields: [senderId], references: [id])
+  channelId     String?
+  channel       Channel?    @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  conversationId String?
+  conversation   Conversation? @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  // Threading
+  threadId    String?
+  thread      Message?   @relation("ThreadReplies", fields: [threadId], references: [id])
+  replies     Message[] @relation("ThreadReplies")
+  replyCount  Int        @default(0)
+
+  // Editing
+  editedAt    DateTime?
+
+  // Pinned
+  pinnedAt    DateTime?
+  pinnedById  String?
+
+  // Reactions
+  reactions   Reaction[]
+
+  // Soft delete
+  deletedAt   DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([senderId])
+  @@index([channelId])
+  @@index([conversationId])
+  @@index([threadId])
+  @@index([createdAt])
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+  SYSTEM
+}
+
+// Reaction Model
+model Reaction {
+  id        String   @id @default(cuid())
+  emoji     String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messageId String
+  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, messageId, emoji])
+  @@index([messageId])
+}
+
+// File Model
+model File {
+  id           String   @id @default(cuid())
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  url          String
+  storageKey   String
+
+  uploadedById String
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+  messageId    String?
+
+  createdAt    DateTime @default(now())
+
+  @@index([uploadedById])
+  @@index([messageId])
+}
+
+// Audit Log Model
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String
+  entity    String
+  entityId  String
+  userId    String
+  metadata  Json?
+  ipAddress String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
+
+// Notification Model
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  title     String
+  body      String?
+  data      Json?
+  readAt    DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, readAt])
+  @@index([createdAt])
+}
