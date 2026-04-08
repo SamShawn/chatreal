@@ -1,5 +1,7 @@
 # Dependencies
 node_modules/
+server/node_modules/
+client/node_modules/
 
 # Environment variables
 .env
@@ -27,6 +29,10 @@ coverage/
 # Build output
 client/build/
 client/dist/
+server/dist/
+
+# TypeScript
+*.tsbuildinfo
 
 # IDE
 .vscode/
@@ -42,6 +48,13 @@ Thumbs.db
 # Uploads
 server/uploads/
 !server/uploads/.gitkeep
+
+# Prisma
+server/prisma/*.db
+server/prisma/*.db-journal
+
+# Redis
+dump.rdb
 
 # Misc
 .cache/
