@@ -4,6 +4,7 @@ export interface User {
   username: string;
   avatar: string;
   color?: string;
+  status?: 'ONLINE' | 'AWAY' | 'DND' | 'OFFLINE';
 }
 
 // 消息类型

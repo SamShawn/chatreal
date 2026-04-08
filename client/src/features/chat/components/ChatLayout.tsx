@@ -2,8 +2,14 @@ import { useState, useEffect, useRef, type ChangeEvent } from 'react';
 import { useAuth } from '../../../app/providers/AuthProvider';
 import { useTheme } from '../../../app/providers/ThemeProvider';
 import socketClient from '../../../lib/socket/client';
+import { useChatStore } from '../../../store/chatStore';
+import { useUIStore } from '../../../stores/uiStore';
 import { channelsApi, conversationsApi, type Channel, type Conversation, type Message } from '../../../lib/api/endpoints';
 import { Avatar, Button } from '../../../components/ui';
+import { usePresence } from '../hooks/usePresence';
+import { useResponsive } from '../hooks/useResponsive';
+import { ThreadPanel } from './ThreadPanel';
+import { CreateChannelModal } from '../../channels/components/CreateChannelModal';
 import {
   Hash,
   MessageCircle,
@@ -27,6 +33,16 @@ import {
 export function ChatLayout(): JSX.Element {
   const { user, logout } = useAuth();
   const { resolvedTheme, toggleTheme } = useTheme();
+  const onlineUsers = useChatStore((state) => state.onlineUsers);
+  const threadMessageId = useUIStore((state) => state.threadMessageId);
+  const closeThread = useUIStore((state) => state.closeThread);
+  const openModal = useUIStore((state) => state.openModal);
+
+  // Enable presence tracking
+  usePresence();
+
+  // Enable responsive detection
+  useResponsive();
 
   // State
   const [channels, setChannels] = useState<Channel[]>([]);
@@ -39,6 +55,9 @@ export function ChatLayout(): JSX.Element {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showChannels, setShowChannels] = useState(true);
   const [showDMs, setShowDMs] = useState(true);
+
+  // Find thread parent message
+  const threadMessage = messages.find((m) => m.id === threadMessageId) || null;
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -225,7 +244,10 @@ export function ChatLayout(): JSX.Element {
               </span>
             )}
             {!sidebarCollapsed && (
-              <button className="p-1 rounded hover:bg-gray-700">
+              <button
+                className="p-1 rounded hover:bg-gray-700"
+                onClick={() => openModal('createChannel')}
+              >
                 <Plus size={14} className="text-gray-400" />
               </button>
             )}
@@ -268,6 +290,8 @@ export function ChatLayout(): JSX.Element {
             <div className="space-y-1 px-2">
               {conversations.map((conv) => {
                 const otherUser = conv.participants.find((p) => p.id !== user?.id);
+                const onlineUser = onlineUsers.find((u) => u.id === otherUser?.id);
+                const userStatus = onlineUser?.status?.toLowerCase() || 'offline';
                 return (
                   <button
                     key={conv.id}
@@ -279,10 +303,10 @@ export function ChatLayout(): JSX.Element {
                     }`}
                   >
                     <Avatar
-                      src={otherUser?.avatar}
-                      alt={otherUser?.username}
+                      src={otherUser?.avatar || undefined}
+                      alt={otherUser?.username || 'User'}
                       size="sm"
-                      status={otherUser?.status === 'ONLINE' ? 'online' : 'offline'}
+                      status={userStatus as 'online' | 'away' | 'dnd' | 'offline'}
                     />
                     {!sidebarCollapsed && (
                       <span className="truncate">{otherUser?.username}</span>
@@ -297,12 +321,28 @@ export function ChatLayout(): JSX.Element {
         {/* User Section */}
         <div className="p-3 border-t border-gray-700">
           <div className="flex items-center gap-3">
-            <Avatar
-              src={user?.avatar}
-              alt={user?.username}
-              size="sm"
-              status="online"
-            />
+            <div className="relative">
+              <Avatar
+                src={user?.avatar || undefined}
+                alt={user?.username || 'User'}
+                size="sm"
+                status={(onlineUsers.find((u) => u.id === user?.id)?.status?.toLowerCase() || user?.status?.toLowerCase() || 'offline') as 'online' | 'away' | 'dnd' | 'offline'}
+              />
+              {/* Status Selector */}
+              <select
+                value={onlineUsers.find((u) => u.id === user?.id)?.status || user?.status || 'ONLINE'}
+                onChange={(e) => {
+                  socketClient.emit('presence:update', { status: e.target.value });
+                }}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                title="Change status"
+              >
+                <option value="ONLINE">Online</option>
+                <option value="AWAY">Away</option>
+                <option value="DND">Do Not Disturb</option>
+                <option value="OFFLINE">Appear Offline</option>
+              </select>
+            </div>
             {!sidebarCollapsed && (
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-white truncate">
@@ -421,6 +461,17 @@ export function ChatLayout(): JSX.Element {
           </div>
         </div>
       </main>
+
+      {/* Thread Panel */}
+      {threadMessage && (
+        <ThreadPanel
+          parentMessage={threadMessage}
+          onClose={closeThread}
+        />
+      )}
+
+      {/* Modals */}
+      <CreateChannelModal />
     </div>
   );
 }
@@ -433,6 +484,7 @@ interface MessageItemProps {
 
 function MessageItem({ message, isOwn }: MessageItemProps): JSX.Element {
   const [showActions, setShowActions] = useState(false);
+  const openThread = useUIStore((state) => state.openThread);
 
   const formatTime = (timestamp: number): string => {
     const date = new Date(timestamp);
@@ -441,6 +493,10 @@ function MessageItem({ message, isOwn }: MessageItemProps): JSX.Element {
       minute: '2-digit',
       hour12: true,
     });
+  };
+
+  const handleOpenThread = (): void => {
+    openThread(message.id);
   };
 
   return (
@@ -504,7 +560,11 @@ function MessageItem({ message, isOwn }: MessageItemProps): JSX.Element {
           <button className="p-1.5 rounded hover:bg-gray-200 transition-colors" title="Add reaction">
             <SmilePlus size={16} className="text-gray-500" />
           </button>
-          <button className="p-1.5 rounded hover:bg-gray-200 transition-colors" title="Pin message">
+          <button
+            className="p-1.5 rounded hover:bg-gray-200 transition-colors"
+            title="Open thread"
+            onClick={handleOpenThread}
+          >
             <Pin size={16} className="text-gray-500" />
           </button>
           {isOwn && (
