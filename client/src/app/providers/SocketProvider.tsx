@@ -27,6 +27,7 @@ export function SocketProvider({ children }: SocketProviderProps): JSX.Element {
 
     return () => {
       socketClient.offAll();
+      socketClient.disconnect();
     };
   }, [isAuthenticated, user]);
 

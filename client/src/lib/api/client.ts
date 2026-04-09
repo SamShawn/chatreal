@@ -97,9 +97,13 @@ apiClient.interceptors.response.use(
           return apiClient(originalRequest);
         }
       } catch {
-        // Refresh failed - clear token and redirect to login
-        clearAccessToken();
-        window.location.href = '/login';
+        // Refresh failed - don't redirect if the request was for refresh endpoint itself
+        // to avoid infinite redirect loops
+        const isRefreshRequest = originalRequest.url?.includes('/auth/refresh');
+        if (!isRefreshRequest) {
+          clearAccessToken();
+          window.location.href = '/login';
+        }
       }
     }
 

@@ -80,13 +80,15 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
   };
 
   const logout = async (): Promise<void> => {
+    // Clear local state immediately to prevent re-renders with stale auth
+    clearAccessToken();
+    setUser(null);
+
     try {
       await authApi.logout();
     } catch {
-      // Ignore logout errors
-    } finally {
-      clearAccessToken();
-      setUser(null);
+      // Logout failed server-side, but local state is already cleared
+      // The user will be treated as logged out locally
     }
   };
 
