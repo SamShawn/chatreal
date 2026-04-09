@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, act } from '@testing-library/react';
+import { act as reactAct } from 'react-dom/test-utils';
 import { ThemeProvider, useTheme } from './ThemeProvider';
 import { setupLocalStorageMock } from '@/test/mocks/localStorage';
 
@@ -156,9 +157,11 @@ describe('ThemeProvider', () => {
     it('should throw error when used outside ThemeProvider', () => {
       const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      expect(() => {
-        render(<ThemeConsumer />);
-      }).toThrow('useTheme must be used within ThemeProvider');
+      expect(() =>
+        reactAct(() => {
+          render(<ThemeConsumer />);
+        })
+      ).toThrow('useTheme must be used within ThemeProvider');
 
       consoleError.mockRestore();
     });

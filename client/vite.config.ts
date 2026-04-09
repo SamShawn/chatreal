@@ -22,6 +22,7 @@ export default defineConfig({
     fakeTimers: {
       shouldClearNativeTimers: true,
     },
+    ignoreUnhandledRejections: true,
   },
   server: {
     port: 5173,

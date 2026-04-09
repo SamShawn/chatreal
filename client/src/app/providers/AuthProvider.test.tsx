@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, act, waitFor } from '@testing-library/react';
+import { act as reactAct } from 'react-dom/test-utils';
 import { AuthProvider, useAuth } from './AuthProvider';
 import { mockAuthResponse, mockUser } from '@/test/mocks/api';
 import { setAccessToken, clearAccessToken } from '@/lib/api/client';
@@ -89,7 +90,9 @@ describe('AuthProvider', () => {
     });
 
     it('should set error on failed login', async () => {
-      vi.mocked(authApi.login).mockRejectedValue(new Error('Invalid credentials'));
+      vi.mocked(authApi.login).mockImplementation(
+        () => Promise.reject(new Error('Invalid credentials')) as Promise<import('@/lib/api/endpoints').AuthResponse>
+      );
 
       render(
         <AuthProvider>
@@ -174,9 +177,11 @@ describe('AuthProvider', () => {
     it('should throw error when used outside AuthProvider', () => {
       const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      expect(() => {
-        render(<AuthConsumer />);
-      }).toThrow('useAuth must be used within AuthProvider');
+      expect(() =>
+        reactAct(() => {
+          render(<AuthConsumer />);
+        })
+      ).toThrow('useAuth must be used within AuthProvider');
 
       consoleError.mockRestore();
     });
