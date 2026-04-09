@@ -2,8 +2,6 @@ import jwt from 'jsonwebtoken';
 import { config } from '../config/index.js';
 import * as authService from '../services/authService.js';
 import * as chatService from '../services/chatService.js';
-// Typing timeouts storage
-const typingTimeouts = new Map();
 /**
  * Initialize Socket.IO handlers
  */

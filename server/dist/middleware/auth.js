@@ -47,7 +47,7 @@ export const authMiddleware = async (req, res, next) => {
 /**
  * Optional auth middleware - doesn't fail if no token
  */
-export const optionalAuthMiddleware = async (req, res, next) => {
+export const optionalAuthMiddleware = async (req, _res, next) => {
     try {
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer ')) {

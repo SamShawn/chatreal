@@ -24,13 +24,15 @@ export const generateAccessToken = (user) => {
         email: user.email,
         role: user.role,
     };
-    return jwt.sign(payload, config.jwtSecret, { expiresIn: config.jwtExpiry });
+    const options = { expiresIn: '15m' };
+    return jwt.sign(payload, config.jwtSecret, options);
 };
 /**
  * Generate refresh token
  */
 export const generateRefreshToken = (user) => {
-    return jwt.sign({ userId: user.id, type: 'refresh' }, config.jwtSecret, { expiresIn: config.refreshTokenExpiry });
+    const options = { expiresIn: '7d' };
+    return jwt.sign({ userId: user.id, type: 'refresh' }, config.jwtSecret, options);
 };
 /**
  * Verify refresh token

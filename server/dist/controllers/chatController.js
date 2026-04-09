@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
  * Get all channels
  * GET /api/v1/channels
  */
-export const getChannels = asyncHandler(async (req, res) => {
+export const getChannels = asyncHandler(async (_req, res) => {
     const channels = await prisma.channel.findMany({
         where: { type: { not: ChannelType.DIRECT } },
         include: {
@@ -275,9 +275,6 @@ export const createConversation = asyncHandler(async (req, res) => {
                     participants: {
                         some: { userId: participantId },
                     },
-                },
-                {
-                    type: 'DIRECT',
                 },
             ],
         },

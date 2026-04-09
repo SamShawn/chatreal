@@ -18,7 +18,7 @@ import chatRoutes from './routes/chatRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 
 // Create Express app
-const app = express();
+const app: ReturnType<typeof express> = express();
 const server = http.createServer(app);
 
 // Create Socket.IO server
@@ -40,7 +40,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Health check
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
@@ -65,14 +65,14 @@ server.listen(config.port, () => {
   console.log(`
 ╔════════════════════════════════════════════════════════════╗
 ║                                                            ║
-║         🚀 ChatReal Server Started Successfully!          ║
+║         🚀 ChatReal Server Started Successfully!           ║
 ║                                                            ║
-║         📍 Server running on: http://localhost:${config.port}   ║
-║         🔌 WebSocket ready on: ws://localhost:${config.port}  ║
+║         📍 Server running on: http://localhost:${config.port}        ║
+║         🔌 WebSocket ready on: ws://localhost:${config.port}         ║
 ║                                                            ║
 ║         📝 Features:                                       ║
-║            • TypeScript + Express                           ║
-║            • JWT Authentication                             ║
+║            • TypeScript + Express                          ║
+║            • JWT Authentication                            ║
 ║            • PostgreSQL + Prisma                           ║
 ║            • Socket.IO Real-time Messaging                 ║
 ║            • Role-based Access Control                     ║

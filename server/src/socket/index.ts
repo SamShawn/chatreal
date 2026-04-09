@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { config } from '../config/index.js';
 import * as authService from '../services/authService.js';
 import * as chatService from '../services/chatService.js';
-import type { SocketUser, ClientToServerEvents, ServerToClientEvents } from '../types/index.js';
+import type { SocketUser } from '../types/index.js';
 
 // Extend Socket data
 declare module 'socket.io' {
@@ -11,9 +11,6 @@ declare module 'socket.io' {
     user?: SocketUser;
   }
 }
-
-// Typing timeouts storage
-const typingTimeouts = new Map<string, NodeJS.Timeout>();
 
 /**
  * Initialize Socket.IO handlers

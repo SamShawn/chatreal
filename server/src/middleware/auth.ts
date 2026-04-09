@@ -41,7 +41,7 @@ export const authMiddleware = async (
         username: '', // Will be fetched if needed
         avatar: null,
         status: 'ONLINE',
-        role: decoded.role,
+        role: decoded.role as SafeUser['role'],
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -69,7 +69,7 @@ export const authMiddleware = async (
  */
 export const optionalAuthMiddleware = async (
   req: AuthenticatedRequest,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
@@ -90,7 +90,7 @@ export const optionalAuthMiddleware = async (
         username: '',
         avatar: null,
         status: 'ONLINE',
-        role: decoded.role,
+        role: decoded.role as SafeUser['role'],
         createdAt: new Date(),
         updatedAt: new Date(),
       };

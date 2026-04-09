@@ -3,7 +3,7 @@ import * as chatController from '../controllers/chatController.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { validateBody } from '../middleware/validation.js';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 // All routes require authentication
 router.use(authMiddleware);

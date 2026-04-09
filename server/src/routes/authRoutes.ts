@@ -3,7 +3,7 @@ import * as authController from '../controllers/authController.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { validateBody } from '../middleware/validation.js';
 
-const router = Router();
+const router: ReturnType<typeof Router> = Router();
 
 // Public routes
 router.post('/register', validateBody('register'), authController.register);

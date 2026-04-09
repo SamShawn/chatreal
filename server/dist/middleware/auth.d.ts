@@ -15,7 +15,7 @@ export declare const authMiddleware: (req: AuthenticatedRequest, res: Response, 
 /**
  * Optional auth middleware - doesn't fail if no token
  */
-export declare const optionalAuthMiddleware: (req: AuthenticatedRequest, res: Response, next: NextFunction) => Promise<void>;
+export declare const optionalAuthMiddleware: (req: AuthenticatedRequest, _res: Response, next: NextFunction) => Promise<void>;
 /**
  * Role-based access control middleware
  */

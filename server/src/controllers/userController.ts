@@ -10,7 +10,7 @@ const prisma = new PrismaClient();
  * Get all users
  * GET /api/v1/users
  */
-export const getUsers = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+export const getUsers = asyncHandler(async (_req: AuthenticatedRequest, res: Response) => {
   const users = await authService.getUsers();
 
   res.json({
