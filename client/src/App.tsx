@@ -41,15 +41,16 @@ function AppContent(): JSX.Element {
 }
 
 function App(): JSX.Element {
-  return (
-    <ThemeProvider>
-      <AuthProvider>
-        <SocketProvider>
-          <AppContent />
-        </SocketProvider>
-      </AuthProvider>
-    </ThemeProvider>
-  );
+  return <AppContent />
+  // return (
+  //   <ThemeProvider>
+  //     <AuthProvider>
+  //       <SocketProvider>
+  //         <AppContent />
+  //       </SocketProvider>
+  //     </AuthProvider>
+  //   </ThemeProvider>
+  // );
 }
 
 export default App;
