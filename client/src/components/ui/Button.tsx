@@ -26,6 +26,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
+    const baseClasses = 'btn-base';
+
     const variantClasses: Record<ButtonVariant, string> = {
       primary: 'btn-primary',
       secondary: 'btn-secondary',
@@ -43,14 +45,14 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={ref}
-        className={`btn ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
+        className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
         disabled={disabled || isLoading}
         {...props}
       >
-        {isLoading && <span className="spinner" />}
-        {!isLoading && leftIcon}
-        {children}
-        {!isLoading && rightIcon}
+        {isLoading && <span className="btn-spinner" />}
+        {!isLoading && leftIcon && <span className="btn-icon-left">{leftIcon}</span>}
+        <span className="btn-text">{children}</span>
+        {!isLoading && rightIcon && <span className="btn-icon-right">{rightIcon}</span>}
       </button>
     );
   }
