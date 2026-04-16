@@ -127,8 +127,11 @@ export function Modal({
     >
       <div
         ref={contentRef}
-        className={`w-full ${sizeClasses[size]} bg-secondary rounded-xl shadow-xl`}
+        className={`w-full ${sizeClasses[size]}`}
         style={{
+          backgroundColor: 'var(--color-elevated)',
+          borderRadius: 'var(--radius-xl)',
+          boxShadow: 'var(--shadow-lg)',
           maxHeight: 'calc(100vh - 2rem)',
           transform: isVisible ? 'scale(1)' : 'scale(0.95)',
           opacity: isVisible ? 1 : 0,
@@ -137,19 +140,26 @@ export function Modal({
       >
         {/* Header */}
         {(title || showCloseButton) && (
-          <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-default)]">
+          <div
+            className="flex items-center justify-between px-6 py-4"
+            style={{ borderBottom: '1px solid var(--color-border-subtle)' }}
+          >
             {title && (
-              <h2 id="modal-title" className="text-lg font-semibold text-[var(--text-primary)]">
+              <h2
+                id="modal-title"
+                className="font-semibold"
+                style={{ fontSize: 'var(--text-lg)', fontWeight: 'var(--font-semibold)', color: 'var(--color-text-primary)' }}
+              >
                 {title}
               </h2>
             )}
             {showCloseButton && (
               <button
                 onClick={onClose}
-                className="p-1.5 rounded-lg hover:bg-[var(--bg-hover)] transition-colors ml-auto"
+                className="p-1.5 rounded-[var(--radius-md)] transition-colors hover:bg-[var(--color-surface)] ml-auto"
                 aria-label="Close modal"
               >
-                <X size={18} className="text-[var(--text-muted)]" />
+                <X size={18} style={{ color: 'var(--color-text-muted)' }} />
               </button>
             )}
           </div>
@@ -162,7 +172,10 @@ export function Modal({
 
         {/* Footer */}
         {footer && (
-          <div className="px-6 py-4 border-t border-[var(--border-default)] flex items-center justify-end gap-3">
+          <div
+            className="px-6 py-4 flex items-center justify-end gap-3"
+            style={{ borderTop: '1px solid var(--color-border-subtle)' }}
+          >
             {footer}
           </div>
         )}
