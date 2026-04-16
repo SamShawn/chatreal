@@ -1,8 +1,7 @@
 import { useState, type FormEvent, type ChangeEvent } from 'react';
 import { useAuth } from '../../../app/providers/AuthProvider';
-import { useTheme } from '../../../app/providers/ThemeProvider';
 import { Button, Input } from '../../../components/ui';
-import { MessageCircle, Moon, Sun, Mail, Lock } from 'lucide-react';
+import { MessageCircle, Mail, Lock, User, ArrowRight } from 'lucide-react';
 
 interface LoginPageProps {
   onNavigateToRegister: () => void;
@@ -10,7 +9,6 @@ interface LoginPageProps {
 
 export function LoginPage({ onNavigateToRegister }: LoginPageProps): JSX.Element {
   const { login, isLoading, error } = useAuth();
-  const { resolvedTheme, toggleTheme } = useTheme();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -35,7 +33,6 @@ export function LoginPage({ onNavigateToRegister }: LoginPageProps): JSX.Element
 
   const handleSubmit = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
-
     if (!validate()) return;
 
     try {
@@ -45,90 +42,168 @@ export function LoginPage({ onNavigateToRegister }: LoginPageProps): JSX.Element
     }
   };
 
-  const handleChange = (setter: (value: string) => void) => (e: ChangeEvent<HTMLInputElement>) => {
-    setter(e.target.value);
-    // Clear error when user types
-    if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
-    if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }));
-  };
+  const handleChange =
+    (setter: (value: string) => void, errorKey: 'email' | 'password') =>
+    (e: ChangeEvent<HTMLInputElement>) => {
+      setter(e.target.value);
+      if (errors[errorKey]) {
+        setErrors((prev) => ({ ...prev, [errorKey]: undefined }));
+      }
+    };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-primary p-4">
-      {/* Background decoration */}
+    <div
+      className="min-h-screen flex items-center justify-center relative overflow-hidden"
+      style={{ backgroundColor: 'var(--color-base)' }}
+    >
+      {/* Animated gradient background */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-primary/20 to-transparent rounded-full blur-3xl" />
-        <div className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-tr from-primary/10 to-transparent rounded-full blur-3xl" />
+        <div
+          className="absolute -top-[40%] -right-[20%] w-[80%] h-[80%] rounded-full blur-[120px] animate-pulse"
+          style={{
+            background: 'radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%)',
+            animationDuration: '8s',
+          }}
+        />
+        <div
+          className="absolute -bottom-[30%] -left-[20%] w-[70%] h-[70%] rounded-full blur-[100px] animate-pulse"
+          style={{
+            background: 'radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%)',
+            animationDuration: '10s',
+            animationDelay: '2s',
+          }}
+        />
+        <div
+          className="absolute top-[60%] left-[10%] w-[40%] h-[40%] rounded-full blur-[80px] animate-pulse"
+          style={{
+            background: 'radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 70%)',
+            animationDuration: '12s',
+            animationDelay: '4s',
+          }}
+        />
       </div>
 
-      <div className="relative w-full max-w-md">
-        {/* Theme toggle */}
-        <button
-          onClick={toggleTheme}
-          className="absolute top-0 right-0 p-2 rounded-full hover:bg-white/10 transition-colors"
-          aria-label="Toggle theme"
-        >
-          {resolvedTheme === 'dark' ? (
-            <Sun size={20} className="text-white/70" />
-          ) : (
-            <Moon size={20} className="text-white/70" />
-          )}
-        </button>
+      {/* Grid pattern overlay */}
+      <div
+        className="absolute inset-0 opacity-[0.02]"
+        style={{
+          backgroundImage: `
+            linear-gradient(var(--color-text-muted) 1px, transparent 1px),
+            linear-gradient(90deg, var(--color-text-muted) 1px, transparent 1px)
+          `,
+          backgroundSize: '64px 64px',
+        }}
+      />
 
-        <div className="card p-8">
+      {/* Auth card */}
+      <div
+        className="relative w-full max-w-[420px] mx-4 animate-slide-up"
+        style={{ animationDuration: 'var(--duration-slow)' }}
+      >
+        <div
+          className="glass rounded-[var(--radius-xl)] p-8"
+          style={{ borderRadius: 'var(--radius-xl)' }}
+        >
           {/* Logo */}
           <div className="flex flex-col items-center mb-8">
-            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center mb-4 shadow-lg">
-              <MessageCircle size={28} className="text-white" />
+            <div
+              className="w-16 h-16 rounded-[var(--radius-lg)] flex items-center justify-center mb-5"
+              style={{
+                background: 'var(--color-accent-gradient)',
+                boxShadow: 'var(--shadow-glow)',
+              }}
+            >
+              <MessageCircle size={32} className="text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-primary">ChatReal</h1>
-            <p className="text-secondary mt-1">Enterprise Real-time Collaboration</p>
+            <h1
+              className="font-bold mb-2"
+              style={{
+                fontSize: 'var(--text-2xl)',
+                fontWeight: 'var(--font-bold)',
+                color: 'var(--color-text-primary)',
+              }}
+            >
+              ChatReal
+            </h1>
+            <p
+              className="text-center"
+              style={{
+                fontSize: 'var(--text-sm)',
+                color: 'var(--color-text-secondary)',
+              }}
+            >
+              Enterprise Real-time Collaboration
+            </p>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div className="relative">
-              <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+              <Mail
+                size={18}
+                className="absolute left-4 top-1/2 -translate-y-1/2"
+                style={{ color: 'var(--color-text-muted)' }}
+              />
               <Input
                 type="email"
                 placeholder="Email address"
                 value={email}
-                onChange={handleChange(setEmail)}
+                onChange={handleChange(setEmail, 'email')}
                 error={errors.email}
-                className="pl-10"
+                className="pl-11"
                 autoComplete="email"
               />
             </div>
 
             <div className="relative">
-              <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+              <Lock
+                size={18}
+                className="absolute left-4 top-1/2 -translate-y-1/2"
+                style={{ color: 'var(--color-text-muted)' }}
+              />
               <Input
                 type="password"
                 placeholder="Password"
                 value={password}
-                onChange={handleChange(setPassword)}
+                onChange={handleChange(setPassword, 'password')}
                 error={errors.password}
-                className="pl-10"
+                className="pl-11"
                 autoComplete="current-password"
               />
             </div>
 
             {error && (
-              <div className="p-3 rounded-lg bg-danger/10 text-danger text-sm">
+              <div
+                className="p-3 rounded-[var(--radius-md)] text-sm"
+                style={{
+                  backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                  color: 'var(--color-error)',
+                }}
+              >
                 {error}
               </div>
             )}
 
-            <Button type="submit" className="w-full" isLoading={isLoading}>
+            <Button
+              type="submit"
+              className="w-full h-11"
+              isLoading={isLoading}
+              rightIcon={<ArrowRight size={18} />}
+            >
               Sign In
             </Button>
           </form>
 
           {/* Register link */}
-          <div className="mt-6 text-center text-sm text-secondary">
+          <div
+            className="mt-6 text-center text-sm"
+            style={{ color: 'var(--color-text-secondary)' }}
+          >
             Don't have an account?{' '}
             <button
               onClick={onNavigateToRegister}
-              className="text-primary font-medium hover:underline"
+              className="font-medium transition-colors hover:underline"
+              style={{ color: 'var(--color-accent)' }}
             >
               Create one
             </button>
@@ -136,7 +211,10 @@ export function LoginPage({ onNavigateToRegister }: LoginPageProps): JSX.Element
         </div>
 
         {/* Footer */}
-        <p className="text-center text-xs text-white/50 mt-6">
+        <p
+          className="text-center text-xs mt-6"
+          style={{ color: 'var(--color-text-muted)' }}
+        >
           Secure enterprise communication platform
         </p>
       </div>
