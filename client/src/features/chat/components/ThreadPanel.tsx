@@ -57,7 +57,7 @@ export function ThreadPanel({
         </h3>
         <button
           onClick={onClose}
-          className="p-1.5 rounded-[var(--radius-sm)] transition-colors hover:bg-surface"
+          className="p-1.5 rounded-[var(--radius-sm)] transition-colors hover:bg-[var(--color-surface)]"
           style={{ color: 'var(--color-text-secondary)' }}
           aria-label="Close thread"
         >
@@ -122,10 +122,10 @@ export function ThreadPanel({
               }}
             />
             <div className="absolute right-3 bottom-3 flex items-center gap-1">
-              <button className="p-1.5 rounded-[var(--radius-sm)] transition-colors hover:bg-elevated" style={{ color: 'var(--color-text-muted)' }}>
+              <button className="p-1.5 rounded-[var(--radius-sm)] transition-colors hover:bg-[var(--color-elevated)]" style={{ color: 'var(--color-text-muted)' }}>
                 <Smile size={18} />
               </button>
-              <button className="p-1.5 rounded-[var(--radius-sm)] transition-colors hover:bg-elevated" style={{ color: 'var(--color-text-muted)' }}>
+              <button className="p-1.5 rounded-[var(--radius-sm)] transition-colors hover:bg-[var(--color-elevated)]" style={{ color: 'var(--color-text-muted)' }}>
                 <Paperclip size={18} />
               </button>
             </div>

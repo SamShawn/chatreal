@@ -9,35 +9,39 @@ import {
   Plus,
   Settings,
   Search,
+  LogOut,
+  Moon,
+  Sun,
 } from 'lucide-react';
 
 interface ChannelSidebarProps {
   channels: Channel[];
   conversations: Conversation[];
-  activeChannelId?: string;
-  activeConversationId?: string;
-  currentUser?: User | null;
-  onlineUsers?: User[];
-  collapsed: boolean;
-  onToggleCollapse: () => void;
+  activeChannel: Channel | null;
+  activeConversation: Conversation | null;
   onSelectChannel: (channel: Channel) => void;
   onSelectConversation: (conversation: Conversation) => void;
-  onCreateChannel: () => void;
+  currentUser?: User | null;
+  onlineUsers?: User[];
+  onToggleTheme?: () => void;
+  onLogout: () => void;
+  resolvedTheme?: 'light' | 'dark';
 }
 
 export function ChannelSidebar({
   channels,
   conversations,
-  activeChannelId,
-  activeConversationId,
-  currentUser,
-  onlineUsers = [],
-  collapsed,
-  onToggleCollapse,
+  activeChannel,
+  activeConversation,
   onSelectChannel,
   onSelectConversation,
-  onCreateChannel,
+  currentUser,
+  onlineUsers = [],
+  onToggleTheme,
+  onLogout,
+  resolvedTheme = 'dark',
 }: ChannelSidebarProps): JSX.Element {
+  const [collapsed, setCollapsed] = useState(false);
   const [showChannels, setShowChannels] = useState(true);
   const [showDMs, setShowDMs] = useState(true);
 
@@ -67,8 +71,8 @@ export function ChannelSidebar({
           </h1>
         )}
         <button
-          onClick={onToggleCollapse}
-          className="p-1.5 rounded-[var(--radius-md)] transition-all hover:bg-surface"
+          onClick={() => setCollapsed(!collapsed)}
+          className="p-1.5 rounded-[var(--radius-md)] transition-all hover:bg-[var(--color-surface)]"
           style={{ color: 'var(--color-text-secondary)' }}
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
@@ -80,7 +84,7 @@ export function ChannelSidebar({
       {!collapsed && (
         <div className="px-3 py-3">
           <button
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-[var(--radius-md)] transition-colors hover:bg-surface"
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-[var(--radius-md)] transition-colors hover:bg-[var(--color-surface)]"
             style={{ color: 'var(--color-text-muted)' }}
           >
             <Search size={16} />
@@ -94,7 +98,7 @@ export function ChannelSidebar({
         {/* Channels section */}
         <div className="px-3 mb-2">
           <button
-            className="w-full flex items-center justify-between px-2 py-1.5 rounded-[var(--radius-sm)] hover:bg-surface transition-colors"
+            className="w-full flex items-center justify-between px-2 py-1.5 rounded-[var(--radius-sm)] hover:bg-[var(--color-surface)] transition-colors"
             onClick={() => setShowChannels(!showChannels)}
           >
             {!collapsed && (
@@ -119,14 +123,14 @@ export function ChannelSidebar({
               <ChannelItem
                 key={channel.id}
                 channel={channel}
-                isActive={activeChannelId === channel.id}
+                isActive={activeChannel?.id === channel.id}
                 collapsed={collapsed}
                 onClick={() => onSelectChannel(channel)}
               />
             ))}
             <button
-              onClick={onCreateChannel}
-              className="w-full flex items-center gap-2 px-2 py-2 rounded-[var(--radius-md)] transition-all hover:bg-surface group"
+              onClick={() => {}}
+              className="w-full flex items-center gap-2 px-2 py-2 rounded-[var(--radius-md)] transition-all hover:bg-[var(--color-surface)] group"
             >
               <div
                 className="w-8 h-8 rounded-full flex items-center justify-center"
@@ -149,7 +153,7 @@ export function ChannelSidebar({
         {/* DMs section */}
         <div className="px-3 mt-6 mb-2">
           <button
-            className="w-full flex items-center justify-between px-2 py-1.5 rounded-[var(--radius-sm)] hover:bg-surface transition-colors"
+            className="w-full flex items-center justify-between px-2 py-1.5 rounded-[var(--radius-sm)] hover:bg-[var(--color-surface)] transition-colors"
             onClick={() => setShowDMs(!showDMs)}
           >
             {!collapsed && (
@@ -176,7 +180,7 @@ export function ChannelSidebar({
                 <DMItem
                   key={conv.id}
                   user={otherUser}
-                  isActive={activeConversationId === conv.id}
+                  isActive={activeConversation?.id === conv.id}
                   collapsed={collapsed}
                   status={otherUser ? getUserStatus(otherUser.id) : 'offline'}
                   onClick={() => onSelectConversation(conv)}
@@ -207,9 +211,26 @@ export function ChannelSidebar({
             </div>
           )}
           {!collapsed && (
-            <button className="p-1.5 rounded-[var(--radius-sm)] transition-colors hover:bg-surface" style={{ color: 'var(--color-text-secondary)' }}>
-              <Settings size={16} />
-            </button>
+            <div className="flex items-center gap-1">
+              {onToggleTheme && (
+                <button
+                  onClick={onToggleTheme}
+                  className="p-1.5 rounded-[var(--radius-sm)] transition-colors hover:bg-[var(--color-surface)]"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                  aria-label="Toggle theme"
+                >
+                  {resolvedTheme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+                </button>
+              )}
+              <button
+                onClick={onLogout}
+                className="p-1.5 rounded-[var(--radius-sm)] transition-colors hover:bg-[var(--color-surface)]"
+                style={{ color: 'var(--color-text-secondary)' }}
+                aria-label="Logout"
+              >
+                <LogOut size={16} />
+              </button>
+            </div>
           )}
         </div>
       </div>
@@ -230,7 +251,7 @@ function ChannelItem({ channel, isActive, collapsed, onClick }: ChannelItemProps
   return (
     <button
       onClick={onClick}
-      className="w-full flex items-center gap-2 px-2 py-2 rounded-[var(--radius-md)] transition-all"
+      className="w-full flex items-center gap-2 px-2 py-2 rounded-[var(--radius-md)] transition-all relative"
       style={{
         backgroundColor: isActive ? 'var(--color-accent-subtle)' : 'transparent',
         borderLeft: isActive ? '2px solid var(--color-accent)' : '2px solid transparent',
