@@ -9,25 +9,13 @@ import { Avatar, Button } from '../../../components/ui';
 import { usePresence } from '../hooks/usePresence';
 import { useResponsive } from '../hooks/useResponsive';
 import { ThreadPanel } from './ThreadPanel';
+import { MessageBubble } from './MessageBubble';
+import { MessageInput } from './MessageInput';
+import { ChannelSidebar } from './ChannelSidebar';
 import { CreateChannelModal } from '../../channels/components/CreateChannelModal';
 import {
-  Hash,
-  MessageCircle,
   Search,
-  LogOut,
-  Moon,
-  Sun,
-  Plus,
-  ChevronDown,
-  ChevronRight,
-  Send,
-  Smile,
-  Paperclip,
   MoreVertical,
-  Pin,
-  SmilePlus,
-  Edit2,
-  Trash2,
 } from 'lucide-react';
 
 export function ChatLayout(): JSX.Element {
@@ -52,9 +40,6 @@ export function ChatLayout(): JSX.Element {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [showChannels, setShowChannels] = useState(true);
-  const [showDMs, setShowDMs] = useState(true);
 
   // Find thread parent message
   const threadMessage = messages.find((m) => m.id === threadMessageId) || null;
@@ -203,197 +188,77 @@ export function ChatLayout(): JSX.Element {
     await logout();
   };
 
-  const roomName = activeChannel ? `#${activeChannel.name}` : 'Direct Messages';
-  const roomIcon = activeChannel ? <Hash size={18} /> : <MessageCircle size={18} />;
+  const roomName = activeChannel ? `#${activeChannel.name}` : activeConversation
+    ? (activeConversation.participants.find((p) => p.id !== user?.id)?.username || 'Direct Messages')
+    : 'Select a channel';
 
   return (
-    <div className="h-screen flex bg-primary">
-      {/* Sidebar */}
-      <aside
-        className={`${
-          sidebarCollapsed ? 'w-16' : 'w-64'
-        } bg-gray-800 flex flex-col transition-all duration-200`}
-      >
-        {/* Workspace Header */}
-        <div className="h-14 px-4 flex items-center justify-between border-b border-gray-700">
-          {!sidebarCollapsed && (
-            <h1 className="font-bold text-white">ChatReal</h1>
-          )}
-          <button
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="p-1.5 rounded hover:bg-gray-700 transition-colors"
-          >
-            {sidebarCollapsed ? (
-              <ChevronRight size={18} className="text-gray-400" />
-            ) : (
-              <ChevronDown size={18} className="text-gray-400" />
-            )}
-          </button>
-        </div>
-
-        {/* Channels Section */}
-        <div className="flex-1 overflow-y-auto py-4">
-          {/* Channels Header */}
-          <div
-            className="px-4 flex items-center justify-between mb-2 cursor-pointer"
-            onClick={() => setShowChannels(!showChannels)}
-          >
-            {!sidebarCollapsed && (
-              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                Channels
-              </span>
-            )}
-            {!sidebarCollapsed && (
-              <button
-                className="p-1 rounded hover:bg-gray-700"
-                onClick={() => openModal('createChannel')}
-              >
-                <Plus size={14} className="text-gray-400" />
-              </button>
-            )}
-          </div>
-
-          {/* Channel List */}
-          {showChannels && (
-            <div className="space-y-1 px-2">
-              {channels.map((channel) => (
-                <button
-                  key={channel.id}
-                  onClick={() => selectChannel(channel)}
-                  className={`w-full flex items-center gap-2 px-2 py-1.5 rounded text-sm transition-colors ${
-                    activeChannel?.id === channel.id
-                      ? 'bg-gray-700 text-white'
-                      : 'text-gray-300 hover:bg-gray-700/50'
-                  }`}
-                >
-                  <Hash size={16} className="flex-shrink-0" />
-                  {!sidebarCollapsed && <span className="truncate">{channel.name}</span>}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* DMs Header */}
-          <div
-            className="px-4 flex items-center justify-between mt-6 mb-2 cursor-pointer"
-            onClick={() => setShowDMs(!showDMs)}
-          >
-            {!sidebarCollapsed && (
-              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                Direct Messages
-              </span>
-            )}
-          </div>
-
-          {/* DM List */}
-          {showDMs && (
-            <div className="space-y-1 px-2">
-              {conversations.map((conv) => {
-                const otherUser = conv.participants.find((p) => p.id !== user?.id);
-                const onlineUser = onlineUsers.find((u) => u.id === otherUser?.id);
-                const userStatus = onlineUser?.status?.toLowerCase() || 'offline';
-                return (
-                  <button
-                    key={conv.id}
-                    onClick={() => selectConversation(conv)}
-                    className={`w-full flex items-center gap-2 px-2 py-1.5 rounded text-sm transition-colors ${
-                      activeConversation?.id === conv.id
-                        ? 'bg-gray-700 text-white'
-                        : 'text-gray-300 hover:bg-gray-700/50'
-                    }`}
-                  >
-                    <Avatar
-                      src={otherUser?.avatar || undefined}
-                      alt={otherUser?.username || 'User'}
-                      size="sm"
-                      status={userStatus as 'online' | 'away' | 'dnd' | 'offline'}
-                    />
-                    {!sidebarCollapsed && (
-                      <span className="truncate">{otherUser?.username}</span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* User Section */}
-        <div className="p-3 border-t border-gray-700">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <Avatar
-                src={user?.avatar || undefined}
-                alt={user?.username || 'User'}
-                size="sm"
-                status={(onlineUsers.find((u) => u.id === user?.id)?.status?.toLowerCase() || user?.status?.toLowerCase() || 'offline') as 'online' | 'away' | 'dnd' | 'offline'}
-              />
-              {/* Status Selector */}
-              <select
-                value={onlineUsers.find((u) => u.id === user?.id)?.status || user?.status || 'ONLINE'}
-                onChange={(e) => {
-                  socketClient.emit('presence:update', { status: e.target.value });
-                }}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                title="Change status"
-              >
-                <option value="ONLINE">Online</option>
-                <option value="AWAY">Away</option>
-                <option value="DND">Do Not Disturb</option>
-                <option value="OFFLINE">Appear Offline</option>
-              </select>
-            </div>
-            {!sidebarCollapsed && (
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white truncate">
-                  {user?.username}
-                </p>
-                <p className="text-xs text-gray-400 truncate">
-                  {user?.email}
-                </p>
-              </div>
-            )}
-            {!sidebarCollapsed && (
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={toggleTheme}
-                  className="p-1.5 rounded hover:bg-gray-700 transition-colors"
-                >
-                  {resolvedTheme === 'dark' ? (
-                    <Sun size={16} className="text-gray-400" />
-                  ) : (
-                    <Moon size={16} className="text-gray-400" />
-                  )}
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="p-1.5 rounded hover:bg-gray-700 transition-colors"
-                >
-                  <LogOut size={16} className="text-gray-400" />
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </aside>
+    <div
+      className="h-screen flex"
+      style={{ backgroundColor: 'var(--color-base)' }}
+    >
+      {/* Sidebar - using ChannelSidebar component */}
+      <ChannelSidebar
+        channels={channels}
+        conversations={conversations}
+        activeChannel={activeChannel}
+        activeConversation={activeConversation}
+        onSelectChannel={selectChannel}
+        onSelectConversation={selectConversation}
+        currentUser={user}
+        onlineUsers={onlineUsers}
+        onToggleTheme={toggleTheme}
+        onLogout={handleLogout}
+        resolvedTheme={resolvedTheme}
+      />
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col bg-secondary">
+      <main
+        className="flex-1 flex flex-col"
+        style={{
+          backgroundColor: 'var(--color-elevated)',
+          borderLeft: '1px solid var(--color-border-subtle)',
+        }}
+      >
         {/* Header */}
-        <header className="h-14 px-6 flex items-center justify-between border-b border-gray-200">
+        <header
+          className="h-14 px-6 flex items-center justify-between"
+          style={{
+            borderBottom: '1px solid var(--color-border-subtle)',
+            backgroundColor: 'var(--color-elevated)',
+          }}
+        >
           <div className="flex items-center gap-3">
-            {roomIcon}
-            <h2 className="font-semibold text-gray-900">{roomName}</h2>
+            {activeChannel && (
+              <span style={{ color: 'var(--color-text-secondary)' }}>
+                {/* Hash icon would go here */}
+              </span>
+            )}
+            <h2
+              className="font-semibold"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              {roomName}
+            </h2>
           </div>
 
           <div className="flex items-center gap-2">
             {/* Search */}
             <div className="relative">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <Search
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2"
+                style={{ color: 'var(--color-text-muted)' }}
+              />
               <input
                 type="text"
                 placeholder="Search messages..."
-                className="w-64 pl-9 pr-4 py-2 text-sm bg-gray-100 border-0 rounded-lg focus:ring-2 focus:ring-primary/20"
+                className="w-64 pl-9 pr-4 py-2 text-sm rounded-lg transition-all duration-[var(--duration-fast)]"
+                style={{
+                  backgroundColor: 'var(--color-surface)',
+                  color: 'var(--color-text-primary)',
+                  border: '1px solid var(--color-border-subtle)',
+                }}
               />
             </div>
 
@@ -408,18 +273,34 @@ export function ChatLayout(): JSX.Element {
         <div className="flex-1 overflow-y-auto p-6">
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
-              <div className="spinner" />
+              <div
+                className="spinner"
+                style={{
+                  borderColor: 'var(--color-border-default)',
+                  borderTopColor: 'var(--color-accent)',
+                }}
+              />
             </div>
           ) : messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-gray-500">
-              <MessageCircle size={48} className="mb-4 opacity-20" />
-              <p>No messages yet</p>
-              <p className="text-sm">Be the first to send a message!</p>
+            <div
+              className="flex flex-col items-center justify-center h-full"
+              style={{ color: 'var(--color-text-muted)' }}
+            >
+              <div
+                className="w-12 h-12 rounded-full flex items-center justify-center mb-4"
+                style={{ backgroundColor: 'var(--color-surface)' }}
+              >
+                {/* MessageCircle icon placeholder */}
+              </div>
+              <p style={{ color: 'var(--color-text-secondary)' }}>No messages yet</p>
+              <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
+                Be the first to send a message!
+              </p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-1">
               {messages.map((message) => (
-                <MessageItem
+                <MessageBubble
                   key={message.id}
                   message={message}
                   isOwn={message.sender.id === user?.id}
@@ -430,36 +311,14 @@ export function ChatLayout(): JSX.Element {
           )}
         </div>
 
-        {/* Input Area */}
-        <div className="p-4 border-t border-gray-200">
-          <div className="flex items-end gap-3">
-            <div className="flex-1 relative">
-              <textarea
-                value={inputValue}
-                onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setInputValue(e.target.value)}
-                onKeyDown={handleKeyPress}
-                placeholder={`Message ${roomName}`}
-                className="w-full px-4 py-3 pr-12 bg-gray-100 border-0 rounded-lg resize-none focus:ring-2 focus:ring-primary/20"
-                rows={1}
-              />
-              <div className="absolute right-3 bottom-3 flex items-center gap-1">
-                <button className="p-1.5 rounded hover:bg-gray-200 transition-colors">
-                  <Smile size={20} className="text-gray-400" />
-                </button>
-                <button className="p-1.5 rounded hover:bg-gray-200 transition-colors">
-                  <Paperclip size={20} className="text-gray-400" />
-                </button>
-              </div>
-            </div>
-            <Button
-              onClick={sendMessage}
-              disabled={!inputValue.trim()}
-              className="flex-shrink-0"
-            >
-              <Send size={18} />
-            </Button>
-          </div>
-        </div>
+        {/* Input Area - using MessageInput component */}
+        <MessageInput
+          value={inputValue}
+          onChange={setInputValue}
+          onKeyDown={handleKeyPress}
+          onSend={sendMessage}
+          placeholder={`Message ${roomName}`}
+        />
       </main>
 
       {/* Thread Panel */}
@@ -472,113 +331,6 @@ export function ChatLayout(): JSX.Element {
 
       {/* Modals */}
       <CreateChannelModal />
-    </div>
-  );
-}
-
-// Message Item Component
-interface MessageItemProps {
-  message: Message;
-  isOwn: boolean;
-}
-
-function MessageItem({ message, isOwn }: MessageItemProps): JSX.Element {
-  const [showActions, setShowActions] = useState(false);
-  const openThread = useUIStore((state) => state.openThread);
-
-  const formatTime = (timestamp: number): string => {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-    });
-  };
-
-  const handleOpenThread = (): void => {
-    openThread(message.id);
-  };
-
-  return (
-    <div
-      className="group flex gap-4 hover:bg-gray-50/50 -mx-4 px-4 py-2 rounded-lg transition-colors"
-      onMouseEnter={() => setShowActions(true)}
-      onMouseLeave={() => setShowActions(false)}
-    >
-      <Avatar
-        src={message.sender.avatar}
-        alt={message.sender.username}
-        size="md"
-      />
-
-      <div className="flex-1 min-w-0">
-        <div className="flex items-baseline gap-2">
-          <span className="font-semibold text-gray-900">
-            {message.sender.username}
-          </span>
-          <span className="text-xs text-gray-500">
-            {formatTime(message.createdAt)}
-          </span>
-          {message.editedAt && (
-            <span className="text-xs text-gray-400">(edited)</span>
-          )}
-        </div>
-
-        <div className={`mt-1 ${isOwn ? 'text-white' : 'text-gray-700'}`}>
-          {message.type === 'TEXT' && <p>{message.content}</p>}
-          {message.type === 'IMAGE' && message.content && (
-            <img
-              src={message.content}
-              alt="Shared image"
-              className="max-w-md rounded-lg mt-2"
-            />
-          )}
-        </div>
-
-        {/* Reactions */}
-        {message.reactions.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-2">
-            {message.reactions.map((reaction, idx) => (
-              <button
-                key={idx}
-                className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 hover:bg-gray-200 rounded-full text-sm transition-colors"
-              >
-                <span>{reaction.emoji}</span>
-                <span className="text-gray-600">{reaction.count}</span>
-              </button>
-            ))}
-            <button className="inline-flex items-center px-2 py-0.5 bg-gray-100 hover:bg-gray-200 rounded-full text-sm transition-colors">
-              <SmilePlus size={14} className="text-gray-400" />
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Actions */}
-      {showActions && (
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button className="p-1.5 rounded hover:bg-gray-200 transition-colors" title="Add reaction">
-            <SmilePlus size={16} className="text-gray-500" />
-          </button>
-          <button
-            className="p-1.5 rounded hover:bg-gray-200 transition-colors"
-            title="Open thread"
-            onClick={handleOpenThread}
-          >
-            <Pin size={16} className="text-gray-500" />
-          </button>
-          {isOwn && (
-            <>
-              <button className="p-1.5 rounded hover:bg-gray-200 transition-colors" title="Edit">
-                <Edit2 size={16} className="text-gray-500" />
-              </button>
-              <button className="p-1.5 rounded hover:bg-gray-200 transition-colors" title="Delete">
-                <Trash2 size={16} className="text-gray-500" />
-              </button>
-            </>
-          )}
-        </div>
-      )}
     </div>
   );
 }
