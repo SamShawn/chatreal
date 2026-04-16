@@ -60,3 +60,8 @@ dump.rdb
 .cache/
 temp/
 tmp/
+
+# Worktrees (isolated workspaces)
+.worktrees/
+
+.remember
