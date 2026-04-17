@@ -1,12 +1,6 @@
-# ChatReal - Enterprise Real-Time Chat Application
+# ChatReal — Enterprise Real-Time Chat
 
-A production-ready enterprise real-time chat application with award-winning UI/UX design, built with React, TypeScript, Socket.IO, Express, Prisma, and PostgreSQL.
-
-## Status
-
-**Current Progress: ~50% Complete**
-
-See [PLAN.md](./PLAN.md) for the full implementation roadmap.
+A production-ready real-time chat application with a refined editorial UI, built with React, TypeScript, Socket.IO, Express, and Prisma.
 
 ## Tech Stack
 
@@ -16,83 +10,16 @@ See [PLAN.md](./PLAN.md) for the full implementation roadmap.
 - Zustand (state management)
 - Socket.IO Client
 - Axios
+- Vitest (testing)
 
 ### Backend
 - Express + TypeScript
 - Socket.IO
 - Prisma ORM
 - PostgreSQL
-- Redis (real-time cache)
+- JWT (cookie-based auth)
 
-## Project Structure
-
-```
-chatreal/
-├── client/src/
-│   ├── app/                    # App shell, providers, routing
-│   ├── features/               # Feature modules
-│   │   ├── auth/               # Login, Register
-│   │   ├── chat/               # Chat components, hooks
-│   │   ├── channels/           # Channel management
-│   │   └── admin/              # Admin panel
-│   ├── components/ui/           # Base UI components
-│   ├── lib/
-│   │   ├── api/                # Axios client
-│   │   ├── socket/             # Socket.IO wrapper
-│   │   └── utils/
-│   ├── store/                  # Zustand stores
-│   └── types/                  # TypeScript types
-│
-└── server/src/
-    ├── config/                 # Environment config
-    ├── controllers/            # HTTP handlers
-    ├── services/               # Business logic
-    ├── middleware/             # Auth, validation
-    ├── routes/                 # Express routes
-    ├── socket/                 # WebSocket handlers
-    └── prisma/
-        └── schema.prisma       # Database schema
-```
-
-## Features
-
-### Implemented
-- User registration & login (JWT)
-- Real-time messaging (Socket.IO)
-- Online presence tracking
-- Message history
-- Channel creation
-- Thread panel
-- Message search
-- File upload UI
-- Admin panel
-- Responsive layout
-
-### In Progress
-- Token refresh mechanism
-- Typing indicators
-- Read receipts
-- Message reactions
-- Message pagination
-
-### Planned
-- Dark/light mode toggle
-- Desktop notifications
-- Rich text editor (@mentions, emojis)
-- File upload backend
-- Audit logging
-- WCAG 2.1 AA accessibility
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+
-- PostgreSQL
-- Redis
-- pnpm (recommended)
-
-### Installation
+## Quick Start
 
 ```bash
 # Install dependencies
@@ -114,22 +41,52 @@ cd ../client
 pnpm dev        # Frontend (port 5173)
 ```
 
-Or use the startup script:
+## Project Structure
 
-```bash
-./start.sh
+```
+chatreal/
+├── client/src/
+│   ├── app/                    # App shell, providers, routing
+│   ├── features/               # Feature modules
+│   │   ├── auth/               # Login, Register
+│   │   ├── chat/               # Chat components, hooks
+│   │   └── channels/           # Channel management
+│   ├── components/ui/           # Base UI components (design system)
+│   ├── lib/
+│   │   ├── api/                # Axios client
+│   │   ├── socket/             # Socket.IO wrapper
+│   │   └── utils/
+│   ├── store/                  # Zustand stores
+│   └── types/                  # TypeScript types
+│
+└── server/src/
+    ├── config/                 # Environment config
+    ├── controllers/            # HTTP handlers
+    ├── services/               # Business logic
+    ├── middleware/             # Auth, validation
+    ├── routes/                 # Express routes
+    └── socket/                 # WebSocket handlers
 ```
 
-### Environment Variables
+## Features
 
-**Server (`server/.env`)**
+### Implemented
+- User registration & login (JWT with httpOnly cookies)
+- Real-time messaging (Socket.IO)
+- Online presence tracking
+- Message history with pagination
+- Channel creation & management (PUBLIC, PRIVATE, DIRECT)
+- Thread panel (reply-in-thread)
+- Message search
+- Responsive collapsible sidebar layout
+- Admin panel
+- Modal component system
 
-```env
-DATABASE_URL="postgresql://user:password@localhost:5432/chatreal"
-REDIS_URL="redis://localhost:6379"
-JWT_SECRET="your-secret-key"
-PORT=3001
-```
+### In Progress
+- Typing indicators
+- Read receipts
+- Message reactions
+- Token refresh mechanism
 
 ## API Endpoints
 
@@ -161,67 +118,46 @@ DELETE /api/v1/messages/:id
 ## Socket Events
 
 ### Client → Server
-- `auth:login` - Authenticate with JWT
-- `message:send` - Send a message
-- `typing:start` / `typing:stop` - Typing indicators
-- `presence:update` - Update user status
+- `auth:login` — Authenticate with JWT
+- `message:send` — Send a message
+- `presence:update` — Update user status
 
 ### Server → Client
-- `auth:success` - Authentication successful
-- `message:new` - New message received
-- `typing:update` - Typing status update
-- `presence:changed` - User presence change
-
-## Database Schema
-
-The Prisma schema includes:
-- User (with roles: ADMIN, MODERATOR, MEMBER, GUEST)
-- Channel (PUBLIC, PRIVATE, DIRECT)
-- Membership
-- Conversation / ConversationParticipant
-- Message (with threading support)
-- Reaction
-- File
-- AuditLog
-- Notification
-
-## UI Components
-
-Located in `client/src/components/ui/`:
-- Avatar
-- Badge
-- Button
-- Input
-- Modal
+- `auth:success` — Authentication successful
+- `message:new` — New message received
+- `presence:changed` — User presence change
 
 ## Available Scripts
 
 ### Client
 ```bash
-pnpm dev      # Start dev server
-pnpm build    # Production build
-pnpm preview  # Preview production build
-pnpm lint     # Run ESLint
+pnpm dev          # Start dev server
+pnpm build        # Production build
+pnpm preview      # Preview production build
+pnpm lint         # Run ESLint
+pnpm test         # Run tests
 ```
 
 ### Server
 ```bash
 pnpm dev          # Start dev server (tsx watch)
 pnpm build        # Compile TypeScript
-pnpm start         # Start production server
-pnpm db:generate   # Generate Prisma client
-pnpm db:push       # Push schema to database
-pnpm db:migrate    # Run migrations
-pnpm db:studio     # Open Prisma Studio
+pnpm start        # Start production server
+pnpm db:generate  # Generate Prisma client
+pnpm db:push      # Push schema to database
+pnpm db:migrate   # Run migrations
+pnpm db:studio    # Open Prisma Studio
 ```
 
-## Design Direction
+## Environment Variables
 
-- **Visual Style**: Minimalist, high information density
-- **Color**: Low-saturation indigo (#6366f1) + cool gray
-- **Typography**: Inter, 1.25 Major Third scale
-- **Animation**: Fast (100-300ms), subtle ease-out curves
-- **Layout**: Collapsible sidebar + thread panel slide-over
+**Server (`server/.env`)**
+
+```env
+DATABASE_URL="postgresql://user:password@localhost:5432/chatreal"
+JWT_SECRET="your-secret-key"
+PORT=3001
+```
 
 ## License
 

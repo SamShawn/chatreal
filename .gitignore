@@ -64,4 +64,5 @@ tmp/
 # Worktrees (isolated workspaces)
 .worktrees/
 
+.claude
 .remember
